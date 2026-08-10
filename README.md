@@ -5,16 +5,23 @@ Producer monorepo for NammaMedMate Module Federation remotes.
 ## Layout
 
 ```
+config/
+  vite/mfe.ts            # shared Vite + federation bootstrap
+  vitest/base.ts         # shared Vitest + coverage bootstrap
+  mfes.json              # reviewed catalog (name, domain, port, package)
 packages/
   shared/
-    contracts/   # data-prop envelope + feature contracts
-    ui/          # shared presentational primitives
-    test-utils/  # test helpers
+    mfe-kit/             # mountStandalone + Redux/thunk store factory
+    contracts/ ui/ test-utils/
   components/
-    todo/        # reference remote MFE
-config/mfes.json # reviewed catalog (name, domain, port, package)
-infra/           # Terraform: per-MFE S3 + CloudFront + Route53 subdomain
-tools/create-mfe # generator for new remotes
+    todo/                # reference remote
+      bootstrap.tsx      # standalone harness
+      index.tsx          # federated ./Mfe
+      src/{components,services,utils,store,styles,test}
+infra/                   # Terraform: per-MFE sites + turbo cache S3
+scripts/                 # deploy, affected, cache, smoke, tf lock backup
+tools/create-mfe         # generator for new remotes
+docs/                    # topic folders (architecture, contracts, …)
 ```
 
 ## Architecture
@@ -23,13 +30,17 @@ tools/create-mfe # generator for new remotes
 - Every exposed root accepts **exactly one prop**: `data`
 - Stable public domain per MFE: `https://<name>.mfe.nammamedmate.com`
 - Host (MED0002) loads `https://<name>.mfe.nammamedmate.com/mf-manifest.json`
+- MFEs reuse root configs — no duplicated federation/vitest blocks
 
 ## Quick start
 
 ```bash
 pnpm install
-pnpm --filter @medmate/todo dev
+pnpm dev:todo
+# or: pnpm run dev:with-host  (prints Portal .env snippet)
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for sibling layout with Pharmacy Portal.
 
 ## Create a new MFE
 
@@ -41,18 +52,16 @@ pnpm create:mfe inventory
 ## Quality gates
 
 ```bash
-pnpm run validate:mfes
-pnpm run lint
-pnpm run typecheck
-pnpm run test:coverage
-pnpm run build
+pnpm run quality
 ```
+
+Coverage thresholds are **100%** (kept in CI; pre-push runs `pnpm test`).
 
 ## Docs
 
-- [Architecture](docs/architecture.md)
-- [Data contract](docs/data-contract.md)
-- [Local development](docs/local-development.md)
-- [Create MFE](docs/create-mfe.md)
-- [Deploy & rollback](docs/deploy.md)
-- [AWS bootstrap](docs/aws-bootstrap.md)
+- [Architecture](docs/architecture/overview.md)
+- [Data contract](docs/contracts/data-contract.md)
+- [Local development](docs/development/local-development.md)
+- [Create MFE](docs/development/create-mfe.md)
+- [Deploy & rollback](docs/deploy/deploy.md)
+- [AWS bootstrap](docs/infra/aws-bootstrap.md)

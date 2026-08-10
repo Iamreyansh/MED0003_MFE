@@ -33,11 +33,23 @@ jobs:
           MFE_SITES_JSON: ${{ vars.MFE_SITES_JSON }}
         run: |
           set -euo pipefail
+          if [ -z "${MFE_SITES_JSON:-}" ]; then
+            echo "::error::Repository variable MFE_SITES_JSON is required"
+            exit 1
+          fi
           NAME="${{ inputs.mfe }}"
           SHA="${{ inputs.git_sha }}"
-          BUCKET="$(jq -r --arg n "$NAME" '.[$n].bucket_name' <<<"$MFE_SITES_JSON")"
-          DIST_ID="$(jq -r --arg n "$NAME" '.[$n].distribution_id' <<<"$MFE_SITES_JSON")"
-          DOMAIN="$(jq -r --arg n "$NAME" '.[$n].domain_name' <<<"$MFE_SITES_JSON")"
+          BUCKET="$(jq -r --arg n "$NAME" '.[$n].bucket_name // empty' <<<"$MFE_SITES_JSON")"
+          DIST_ID="$(jq -r --arg n "$NAME" '.[$n].distribution_id // empty' <<<"$MFE_SITES_JSON")"
+          DOMAIN="$(jq -r --arg n "$NAME" '.[$n].domain_name // empty' <<<"$MFE_SITES_JSON")"
+          if [ -z "$BUCKET" ] || [ -z "$DIST_ID" ] || [ -z "$DOMAIN" ]; then
+            echo "::error::Missing Terraform outputs for MFE ${NAME} (bucket_name, distribution_id, domain_name)"
+            exit 1
+          fi
+          if ! aws s3 ls "s3://${BUCKET}/releases/${SHA}/mf-manifest.json" >/dev/null 2>&1; then
+            echo "::error::Release ${SHA} not found in s3://${BUCKET}/releases/${SHA}/"
+            exit 1
+          fi
           aws s3 cp "s3://${BUCKET}/releases/${SHA}/mf-manifest.json" "s3://${BUCKET}/mf-manifest.json" \
             --cache-control "public,max-age=0,must-revalidate" \
             --content-type "application/json"

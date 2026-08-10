@@ -4,6 +4,11 @@
     { "path": "./packages/shared/contracts" },
     { "path": "./packages/shared/ui" },
     { "path": "./packages/shared/test-utils" },
+    { "path": "./packages/shared/mfe-kit" },
+    { "path": "./packages/shared/federation-config" },
+    { "path": "./packages/shared/host-kit" },
+    { "path": "./packages/tooling/vite-config" },
+    { "path": "./packages/tooling/vitest-config" },
     { "path": "./packages/components/todo" }
   ]
 }

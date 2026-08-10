@@ -34,3 +34,13 @@ output "tf_state_bucket" {
 output "tf_state_key" {
   value = "MED0003/terraform.tfstate"
 }
+
+output "tf_lock_prefix" {
+  description = "S3 native lockfiles live beside state under this prefix."
+  value       = "MED0003/"
+}
+
+output "turbo_cache_bucket" {
+  description = "Private S3 bucket for Turborepo local cache sync."
+  value       = aws_s3_bucket.turbo_cache.bucket
+}

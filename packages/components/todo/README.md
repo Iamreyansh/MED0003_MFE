@@ -1,27 +1,22 @@
-# Todo MFE (reference remote)
+# Todo MFE
 
-This package is the canonical Module Federation remote for NammaMedMate.
+- Domain: `https://todo.mfe.nammamedmate.com`
+- Standalone: `pnpm --filter @medmate/todo dev`
+- Federated expose: `./Mfe` via package-root `index.tsx`
 
-## Contract
+## Layout
 
-The exposed module `./Mfe` accepts **exactly one prop**:
-
-```tsx
-<TodoMfe data={envelope} />
 ```
-
-`data` is an `MfeDataEnvelope<TodoFeatureData>` from `@medmate/contracts`.
-
-## Local development
-
-```bash
-pnpm --filter @medmate/todo dev
+bootstrap.tsx
+index.tsx
+src/
+  components/     # UI pieces + __tests__
+  hooks/          # view-model / action hooks + __tests__
+  constants/      # copy, filters, store names + __tests__
+  services/       # domain adapters + __tests__
+  store/          # redux slice / thunks / selectors + __tests__
+  utils/          # pure helpers + __tests__
+  types/
+  styles/
+  test/
 ```
-
-Open http://localhost:5101 for the standalone harness.
-
-## Production URL
-
-Stable domain: `https://todo.mfe.nammamedmate.com/mf-manifest.json`
-
-Hosts (e.g. MED0002) should point `VITE_REMOTE_TODO_URL` at that manifest.

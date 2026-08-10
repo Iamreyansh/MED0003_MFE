@@ -1,7 +1,7 @@
 import {
   MFE_CONTRACT_VERSION,
+  type HostContext,
   type MfeDataEnvelope,
-  type TodoFeatureData,
 } from '@medmate/contracts';
 import {
   render,
@@ -10,17 +10,30 @@ import {
 } from '@testing-library/react';
 import type { ReactElement, ReactNode } from 'react';
 
-export function createTodoEnvelope(
-  feature: TodoFeatureData = {},
-): MfeDataEnvelope<TodoFeatureData> {
+const DEFAULT_CONTEXT: HostContext = {
+  hostId: 'test-host',
+  locale: 'en-IN',
+  pharmacyId: 'pharmacy-1',
+  userId: 'user-1',
+  permissions: [],
+};
+
+export type CreateMfeEnvelopeOptions<TFeature> = {
+  feature?: TFeature;
+  context?: Partial<HostContext>;
+};
+
+/** Generic envelope builder — feature packages should wrap this for typed helpers. */
+export function createMfeEnvelope<TFeature = unknown>(
+  options: CreateMfeEnvelopeOptions<TFeature> = {},
+): MfeDataEnvelope<TFeature> {
+  const feature = (options.feature ?? ({} as TFeature)) as TFeature;
   return {
     contractVersion: MFE_CONTRACT_VERSION,
     context: {
-      hostId: 'test-host',
-      locale: 'en-IN',
-      pharmacyId: 'pharmacy-1',
-      userId: 'user-1',
-      permissions: ['todo:read', 'todo:write'],
+      ...DEFAULT_CONTEXT,
+      ...options.context,
+      permissions: options.context?.permissions ?? DEFAULT_CONTEXT.permissions,
     },
     feature,
   };

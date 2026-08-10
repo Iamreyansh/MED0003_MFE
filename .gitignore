@@ -11,6 +11,8 @@ coverage
 *.tfstate
 *.tfstate.*
 *.tfplan
+tfplan
+infra/tfplan
 crash.log
 .idea
 .vscode/*

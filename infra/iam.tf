@@ -70,17 +70,23 @@ resource "aws_iam_role" "github_actions" {
 
 data "aws_iam_policy_document" "github_deploy" {
   statement {
-    sid       = "ListBuckets"
-    effect    = "Allow"
-    actions   = ["s3:ListBucket"]
-    resources = [for m in module.mfe : m.bucket_arn]
+    sid     = "ListBuckets"
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = concat(
+      [for m in module.mfe : m.bucket_arn],
+      [aws_s3_bucket.turbo_cache.arn],
+    )
   }
 
   statement {
-    sid       = "WriteObjects"
-    effect    = "Allow"
-    actions   = ["s3:PutObject", "s3:DeleteObject", "s3:GetObject"]
-    resources = [for m in module.mfe : "${m.bucket_arn}/*"]
+    sid     = "WriteObjects"
+    effect  = "Allow"
+    actions = ["s3:PutObject", "s3:DeleteObject", "s3:GetObject"]
+    resources = concat(
+      [for m in module.mfe : "${m.bucket_arn}/*"],
+      ["${aws_s3_bucket.turbo_cache.arn}/*"],
+    )
   }
 
   statement {

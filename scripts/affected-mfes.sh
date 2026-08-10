@@ -16,7 +16,7 @@ fi
 
 CHANGED="$(git diff --name-only "${BASE_REF}...HEAD" || true)"
 SHARED_HIT=0
-if echo "${CHANGED}" | grep -E '^(packages/shared/|pnpm-lock\.yaml|package\.json|turbo\.json)' >/dev/null; then
+if echo "${CHANGED}" | grep -E '^(packages/shared/|config/|scripts/|\.github/workflows/|pnpm-lock\.yaml|package\.json|turbo\.json)' >/dev/null; then
   SHARED_HIT=1
 fi
 

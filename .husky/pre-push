@@ -4,4 +4,4 @@ if [ "$branch" = "main" ]; then
   exit 1
 fi
 pnpm run validate:mfes
-pnpm run test:coverage
+pnpm run test

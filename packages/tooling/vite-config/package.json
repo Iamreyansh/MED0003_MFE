@@ -1,0 +1,48 @@
+{
+  "name": "@medmate/vite-config",
+  "version": "0.1.0",
+  "description": "Shared Vite + Module Federation factories for remotes and hosts",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"process.exit(0)\"",
+    "test:coverage": "node -e \"process.exit(0)\""
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@medmate/federation-config": "^0.1.0",
+    "@module-federation/vite": "^1.7.1",
+    "@vitejs/plugin-react": "^4.6.0",
+    "vite": "^6.3.5"
+  },
+  "devDependencies": {
+    "@medmate/federation-config": "workspace:*",
+    "@module-federation/vite": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
