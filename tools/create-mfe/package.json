@@ -1,0 +1,17 @@
+{
+  "name": "@medmate/create-mfe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "create-mfe": "./index.mjs"
+  },
+  "scripts": {
+    "build": "node -e \"process.exit(0)\"",
+    "lint": "eslint index.mjs validate.mjs --max-warnings=0",
+    "lint:fix": "eslint index.mjs validate.mjs --fix",
+    "typecheck": "node -e \"process.exit(0)\"",
+    "test": "node --test validate.test.mjs",
+    "test:coverage": "node --test validate.test.mjs"
+  }
+}

@@ -1,0 +1,8 @@
+aws_region        = "ap-south-1"
+root_domain       = "nammamedmate.com"
+mfe_domain_suffix = "mfe.nammamedmate.com"
+github_org        = "Iamreyansh"
+github_org_id     = "43453546"
+github_repo       = "MED0003_MFE"
+github_repo_id    = "1309167446"
+project_name      = "med0003-mfe"

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["mfes"],
+  "properties": {
+    "mfes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "package",
+          "path",
+          "federationName",
+          "expose",
+          "port",
+          "domain",
+          "owner"
+        ],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "package": {
+            "type": "string",
+            "pattern": "^@medmate/[a-z][a-z0-9-]*$"
+          },
+          "path": { "type": "string" },
+          "federationName": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "expose": { "type": "string" },
+          "port": { "type": "integer", "minimum": 5100, "maximum": 5999 },
+          "domain": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+\\.mfe\\.nammamedmate\\.com$"
+          },
+          "owner": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

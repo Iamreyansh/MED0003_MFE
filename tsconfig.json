@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/shared/contracts" },
+    { "path": "./packages/shared/ui" },
+    { "path": "./packages/shared/test-utils" },
+    { "path": "./packages/components/todo" }
+  ]
+}

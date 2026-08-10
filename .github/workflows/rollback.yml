@@ -1,0 +1,52 @@
+name: Rollback MFE
+
+on:
+  workflow_dispatch:
+    inputs:
+      mfe:
+        description: 'MFE name (e.g. todo)'
+        required: true
+        type: string
+      git_sha:
+        description: 'Previous release git SHA'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: mfe-rollback-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-south-1' }}
+
+      - name: Promote previous release manifest
+        env:
+          MFE_SITES_JSON: ${{ vars.MFE_SITES_JSON }}
+        run: |
+          set -euo pipefail
+          NAME="${{ inputs.mfe }}"
+          SHA="${{ inputs.git_sha }}"
+          BUCKET="$(jq -r --arg n "$NAME" '.[$n].bucket_name' <<<"$MFE_SITES_JSON")"
+          DIST_ID="$(jq -r --arg n "$NAME" '.[$n].distribution_id' <<<"$MFE_SITES_JSON")"
+          DOMAIN="$(jq -r --arg n "$NAME" '.[$n].domain_name' <<<"$MFE_SITES_JSON")"
+          aws s3 cp "s3://${BUCKET}/releases/${SHA}/mf-manifest.json" "s3://${BUCKET}/mf-manifest.json" \
+            --cache-control "public,max-age=0,must-revalidate" \
+            --content-type "application/json"
+          if aws s3 ls "s3://${BUCKET}/releases/${SHA}/remoteEntry.js" >/dev/null; then
+            aws s3 cp "s3://${BUCKET}/releases/${SHA}/remoteEntry.js" "s3://${BUCKET}/remoteEntry.js" \
+              --cache-control "public,max-age=0,must-revalidate"
+          fi
+          aws s3 sync "s3://${BUCKET}/releases/${SHA}/" "s3://${BUCKET}/current/" --delete
+          aws cloudfront create-invalidation --distribution-id "${DIST_ID}" --paths "/mf-manifest.json" "/remoteEntry.js" "/current/*"
+          curl -fsSL "https://${DOMAIN}/mf-manifest.json" >/dev/null
+          echo "Rolled back ${NAME} to ${SHA}"

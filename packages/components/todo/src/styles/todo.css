@@ -1,0 +1,18 @@
+.todo-mfe__meta {
+  color: var(--mm-color-muted);
+  margin-top: 0;
+}
+
+.todo-mfe__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-2);
+}
+
+.todo-mfe__item {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}

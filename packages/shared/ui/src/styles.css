@@ -1,0 +1,72 @@
+:root {
+  --mm-color-bg: #f7fafc;
+  --mm-color-surface: #ffffff;
+  --mm-color-text: #0f172a;
+  --mm-color-muted: #64748b;
+  --mm-color-border: #e2e8f0;
+  --mm-color-primary: #0f766e;
+  --mm-color-primary-contrast: #ffffff;
+  --mm-color-danger: #b91c1c;
+  --mm-radius: 10px;
+  --mm-space-1: 0.25rem;
+  --mm-space-2: 0.5rem;
+  --mm-space-3: 0.75rem;
+  --mm-space-4: 1rem;
+  --mm-font: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+.mm-card {
+  background: var(--mm-color-surface);
+  border: 1px solid var(--mm-color-border);
+  border-radius: var(--mm-radius);
+  padding: var(--mm-space-4);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
+  font-family: var(--mm-font);
+  color: var(--mm-color-text);
+}
+
+.mm-button {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--mm-color-primary);
+  color: var(--mm-color-primary-contrast);
+  padding: 0.5rem 0.85rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mm-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mm-button--ghost {
+  background: transparent;
+  color: var(--mm-color-text);
+  border-color: var(--mm-color-border);
+}
+
+.mm-button--danger {
+  background: var(--mm-color-danger);
+}
+
+.mm-input {
+  width: 100%;
+  border: 1px solid var(--mm-color-border);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  font: inherit;
+}
+
+.mm-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-3);
+}
+
+.mm-row {
+  display: flex;
+  gap: var(--mm-space-2);
+  align-items: center;
+}

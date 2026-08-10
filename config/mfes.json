@@ -1,0 +1,15 @@
+{
+  "$schema": "./mfes.schema.json",
+  "mfes": [
+    {
+      "name": "todo",
+      "package": "@medmate/todo",
+      "path": "packages/components/todo",
+      "federationName": "todo",
+      "expose": "./Mfe",
+      "port": 5101,
+      "domain": "todo.mfe.nammamedmate.com",
+      "owner": "platform"
+    }
+  ]
+}
