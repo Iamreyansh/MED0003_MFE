@@ -6,6 +6,13 @@ Account: `105927215604` · Region: `ap-south-1` · Zone: `nammamedmate.com`
 
 Use a **dedicated IAM admin/bootstrap profile** (not account root).
 
+A bootstrap user/profile was created for this account:
+
+```bash
+aws sts get-caller-identity --profile medmate-bootstrap
+# Expected: arn:aws:iam::105927215604:user/medmate-bootstrap
+```
+
 ```bash
 aws sts get-caller-identity --profile <bootstrap>
 # Arn must NOT end with :root
@@ -24,7 +31,9 @@ terraform output -json mfe_sites
 
 ## GitHub configuration
 
-Create Environments: `production`, `terraform`.
+Preferred: create Environments `production` and `terraform` (requires repo admin).
+
+If Environments are unavailable, repository secrets/variables work with the current OIDC trust (main-branch subjects are allowed).
 
 Secrets:
 
