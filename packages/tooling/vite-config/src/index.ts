@@ -1,2 +1,5 @@
-export { createMfeViteConfig, type CreateMfeViteConfigOptions } from './mfe';
-export { createHostViteConfig, type CreateHostViteConfigOptions } from './host';
+export { createMfeViteConfig, type CreateMfeViteConfigOptions } from './mfe.js';
+export {
+  createHostViteConfig,
+  type CreateHostViteConfigOptions,
+} from './host.js';
