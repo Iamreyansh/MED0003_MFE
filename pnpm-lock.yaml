@@ -414,10 +414,11 @@ importers:
         version: 3.2.7(@types/node@26.2.0)(jiti@2.6.1)(jsdom@26.1.0)(yaml@2.9.0)
 
   packages/tooling/vite-config:
-    devDependencies:
+    dependencies:
       '@medmate/federation-config':
         specifier: workspace:*
         version: link:../../shared/federation-config
+    devDependencies:
       '@module-federation/vite':
         specifier: 'catalog:'
         version: 1.20.5(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.6.1)(yaml@2.9.0))
