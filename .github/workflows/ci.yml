@@ -149,7 +149,7 @@ jobs:
             echo "Verified federation artefacts for ${path}"
           done < <(jq -c '.mfes[]' config/mfes.json)
       - name: Configure AWS credentials (OIDC)
-        if: ${{ vars.TURBO_CACHE_BUCKET != '' && secrets.AWS_ROLE_ARN != '' }}
+        if: ${{ vars.TURBO_CACHE_BUCKET != '' }}
         uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -157,7 +157,7 @@ jobs:
           aws-region: ${{ vars.AWS_REGION || 'ap-south-1' }}
           role-duration-seconds: 1800
       - name: Push turbo cache
-        if: ${{ vars.TURBO_CACHE_BUCKET != '' && secrets.AWS_ROLE_ARN != '' }}
+        if: ${{ vars.TURBO_CACHE_BUCKET != '' }}
         env:
           TURBO_CACHE_BUCKET: ${{ vars.TURBO_CACHE_BUCKET }}
         run: |
