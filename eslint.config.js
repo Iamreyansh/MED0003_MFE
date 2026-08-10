@@ -71,5 +71,39 @@ export default tseslint.config(
       },
     },
   },
+  {
+    files: ['packages/shared/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@medmate/todo', '**/packages/components/**'],
+              message:
+                'Shared packages must not depend on feature remotes. Keep feature types/helpers in the remote package.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['packages/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@medmate/host-kit'],
+              message:
+                'Remotes must not import host-kit. Hosts compose remotes via federation.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   eslintConfigPrettier,
 );

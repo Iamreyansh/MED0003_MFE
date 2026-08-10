@@ -89,8 +89,61 @@ function walk(dir) {
 }
 
 walk(targetDir);
+
+// Rename template files that embed tokens in their names.
+function renameTokenFiles(dir) {
+  for (const entryName of fs.readdirSync(dir)) {
+    const full = path.join(dir, entryName);
+    if (fs.statSync(full).isDirectory()) {
+      renameTokenFiles(full);
+      continue;
+    }
+    let nextName = entryName;
+    for (const [token, value] of Object.entries(replacements)) {
+      nextName = nextName.replaceAll(token, value);
+    }
+    if (nextName !== entryName) {
+      fs.renameSync(full, path.join(dir, nextName));
+    }
+  }
+}
+renameTokenFiles(targetDir);
+
 fs.writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+
+const rootTsconfigPath = path.join(repoRoot, 'tsconfig.json');
+const rootTsconfig = JSON.parse(fs.readFileSync(rootTsconfigPath, 'utf8'));
+const refPath = `./${packagePath}`;
+const refs = Array.isArray(rootTsconfig.references)
+  ? rootTsconfig.references
+  : [];
+if (!refs.some((ref) => ref.path === refPath)) {
+  refs.push({ path: refPath });
+  rootTsconfig.references = refs;
+  fs.writeFileSync(
+    rootTsconfigPath,
+    `${JSON.stringify(rootTsconfig, null, 2)}\n`,
+  );
+}
+
+const hostChecklist = path.join(targetDir, 'HOST_INTEGRATION.md');
+fs.writeFileSync(
+  hostChecklist,
+  [
+    `# Host integration checklist — ${name}`,
+    '',
+    'After Terraform provisions this remote, register it in MED0002_PharmacyPortal:',
+    '',
+    `1. Set \`VITE_REMOTE_${name.toUpperCase().replace(/-/g, '_')}_URL=https://${domain}/mf-manifest.json\`.`,
+    `2. Add a \`REMOTE_REGISTRY\` entry: name \`${federationName}\`, module \`./Mfe\`, route \`/${name}\`.`,
+    '3. Add a thin page adapter that builds an `MfeDataEnvelope` and mounts `RemoteLoader`.',
+    '4. Wire the route/nav from the registry (do not hardcode strings).',
+    '5. Add or extend Playwright coverage for the new route.',
+    '',
+  ].join('\n'),
+);
 
 console.log(`Created ${packageName} at ${packagePath}`);
 console.log(`Domain: https://${domain}`);
 console.log('Next: apply Terraform so the subdomain and CDN are provisioned.');
+console.log(`Host checklist: ${packagePath}/HOST_INTEGRATION.md`);

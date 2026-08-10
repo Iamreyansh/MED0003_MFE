@@ -9,5 +9,5 @@
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src", "bootstrap.tsx", "index.tsx"]
 }

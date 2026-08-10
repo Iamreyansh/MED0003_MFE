@@ -1,18 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createVitestConfig } from '../../../config/vitest/base';
 
-export default defineConfig({
-  test: {
-    environment: 'node',
-    coverage: {
-      provider: 'v8',
-      thresholds: {
-        statements: 100,
-        branches: 100,
-        functions: 100,
-        lines: 100,
-      },
-      include: ['src/**/*.ts'],
-      exclude: ['src/**/*.test.ts'],
-    },
-  },
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
+export default createVitestConfig({
+  rootDir,
+  environment: 'node',
+  withReact: false,
+  strictCoverage: true,
+  coverageInclude: ['src/**/*.ts'],
 });

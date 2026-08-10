@@ -1,0 +1,5 @@
+/**
+ * Optional Redux store for this MFE.
+ * Use createMfeStore / createMfeStoreHooks from @medmate/mfe-kit when needed.
+ */
+export {};

@@ -3,6 +3,9 @@
  *
  * Every remote root component MUST accept exactly one prop: `data`.
  * Hosts build a typed `MfeDataEnvelope` and pass it through that prop.
+ *
+ * Feature-specific payload types belong in each remote package
+ * (e.g. `@medmate/todo` contract module), not here.
  */
 
 export const MFE_CONTRACT_VERSION = '1.0.0' as const;
@@ -71,23 +74,6 @@ export type MfeDataEnvelope<TFeature = unknown> = {
 export type MfeProps<TFeature = unknown> = {
   data: Readonly<MfeDataEnvelope<TFeature>>;
 };
-
-export type TodoItem = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
-
-export type TodoFilter = 'all' | 'active' | 'completed';
-
-export type TodoFeatureData = {
-  title?: string;
-  initialItems?: readonly TodoItem[];
-  initialFilter?: TodoFilter;
-  onChange?: (items: readonly TodoItem[]) => void;
-};
-
-export type TodoMfeProps = MfeProps<TodoFeatureData>;
 
 export function isSupportedContractVersion(version: string): boolean {
   return version === MFE_CONTRACT_VERSION;

@@ -17,76 +17,146 @@ env:
   CI: 'true'
 
 jobs:
-  quality:
-    name: quality
+  format:
+    name: format
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    outputs:
-      matrix: ${{ steps.affected.outputs.matrix }}
+    timeout-minutes: 10
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
-        with:
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run validate:mfes
+      - run: pnpm run format:check
 
-      - name: Install
-        run: pnpm install --frozen-lockfile
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
 
-      - name: Validate / lint / typecheck / coverage / build
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run test:coverage
+
+  build:
+    name: build
+    needs: [format, lint, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      matrix: ${{ steps.affected.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ vars.TURBO_CACHE_BUCKET != '' }}
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: mfe-deploy-cache-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION || 'ap-south-1' }}
+          role-duration-seconds: 1800
+      - name: Sync turbo cache in
+        if: ${{ vars.TURBO_CACHE_BUCKET != '' }}
+        env:
+          TURBO_CACHE_BUCKET: ${{ vars.TURBO_CACHE_BUCKET }}
+        run: |
+          chmod +x scripts/cache-pull.sh
+          ./scripts/cache-pull.sh
+      - run: pnpm run build
+      - name: Push turbo cache
+        if: ${{ vars.TURBO_CACHE_BUCKET != '' }}
+        env:
+          TURBO_CACHE_BUCKET: ${{ vars.TURBO_CACHE_BUCKET }}
+        run: |
+          chmod +x scripts/cache-push.sh
+          ./scripts/cache-push.sh
+      - name: Verify federation artefacts
         run: |
           set -euo pipefail
-          pnpm run validate:mfes
-          pnpm run lint
-          pnpm run typecheck
-          pnpm run test:coverage
-          pnpm run build
-
+          while IFS= read -r row; do
+            path="$(echo "${row}" | jq -r '.path')"
+            test -f "${path}/dist/mf-manifest.json"
+            test -f "${path}/dist/remoteEntry.js"
+            echo "Verified federation artefacts for ${path}"
+          done < <(jq -c '.mfes[]' config/mfes.json)
+      - name: Upload MFE dist artefacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mfe-dist-${{ github.sha }}
+          path: |
+            packages/components/*/dist/**
+          retention-days: 7
+          if-no-files-found: error
       - name: Compute affected MFEs
         id: affected
         run: |
           set -euo pipefail
           chmod +x scripts/affected-mfes.sh
-          MATRIX="$(./scripts/affected-mfes.sh HEAD~1)"
+          BEFORE="${{ github.event.before }}"
+          if [ -z "${BEFORE}" ] || [ "${BEFORE}" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE="HEAD~1"
+          fi
+          if ! git rev-parse --verify "${BEFORE}" >/dev/null 2>&1; then
+            BEFORE="origin/main"
+          fi
+          MATRIX="$(./scripts/affected-mfes.sh "${BEFORE}")"
           echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
-          echo "Affected matrix: ${MATRIX}"
+          echo "Affected matrix (base=${BEFORE}): ${MATRIX}"
 
   deploy:
     name: deploy-${{ matrix.name }}
-    needs: quality
-    if: needs.quality.outputs.matrix != '{"include":[]}'
+    needs: build
+    if: needs.build.outputs.matrix != '{"include":[]}'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.quality.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.1.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - name: Download MFE dist artefacts
+        uses: actions/download-artifact@95815c38cf2f0121361844600f48ef7592893716 # v4.2.1
         with:
-          node-version: 20
-          cache: pnpm
+          name: mfe-dist-${{ github.sha }}
+          path: .
 
-      - name: Install and build package
+      - name: Verify package artefact
         run: |
           set -euo pipefail
-          pnpm install --frozen-lockfile
-          pnpm --filter "${{ matrix.package }}" build
           test -f "${{ matrix.path }}/dist/mf-manifest.json"
+          test -f "${{ matrix.path }}/dist/remoteEntry.js"
 
       - name: Resolve deploy targets
         id: targets
@@ -127,9 +197,19 @@ jobs:
             "${{ steps.targets.outputs.distribution_id }}" \
             "${GITHUB_SHA}"
 
-      - name: Smoke check manifest
+  post-deploy:
+    name: post-deploy-${{ matrix.name }}
+    needs: [build, deploy]
+    if: needs.build.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - name: Post-deployment smoke
         run: |
           set -euo pipefail
-          URL="https://${{ matrix.domain }}/mf-manifest.json"
-          curl -fsSL "$URL" | jq -e '.id or .name or .meta or .' >/dev/null
-          echo "Manifest OK: ${URL}"
+          chmod +x scripts/post-deploy-smoke.sh
+          ./scripts/post-deploy-smoke.sh "${{ matrix.domain }}"

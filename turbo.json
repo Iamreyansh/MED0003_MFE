@@ -5,20 +5,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
-    "lint:fix": {
-      "dependsOn": ["^build"]
-    },
-    "typecheck": {
-      "dependsOn": ["^build"]
-    },
-    "test": {
-      "dependsOn": ["^build"]
-    },
+    "lint": {},
+    "lint:fix": {},
+    "typecheck": {},
+    "test": {},
     "test:coverage": {
-      "dependsOn": ["^build"],
       "outputs": ["coverage/**"]
     },
     "dev": {

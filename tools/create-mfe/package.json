@@ -8,9 +8,9 @@
   },
   "scripts": {
     "build": "node -e \"process.exit(0)\"",
-    "lint": "eslint index.mjs validate.mjs --max-warnings=0",
-    "lint:fix": "eslint index.mjs validate.mjs --fix",
-    "typecheck": "node -e \"process.exit(0)\"",
+    "lint": "eslint index.mjs validate.mjs lib.mjs --max-warnings=0",
+    "lint:fix": "eslint index.mjs validate.mjs lib.mjs --fix",
+    "typecheck": "node --check index.mjs && node --check validate.mjs && node --check lib.mjs",
     "test": "node --test validate.test.mjs",
     "test:coverage": "node --test validate.test.mjs"
   }

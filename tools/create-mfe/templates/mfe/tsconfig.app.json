@@ -9,10 +9,5 @@
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"],
     "noEmit": true
   },
-  "include": ["src"],
-  "references": [
-    { "path": "../../shared/contracts" },
-    { "path": "../../shared/ui" },
-    { "path": "../../shared/test-utils" }
-  ]
+  "include": ["src", "bootstrap.tsx", "index.tsx"]
 }

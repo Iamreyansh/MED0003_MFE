@@ -1,27 +1,22 @@
-# **TITLE** MFE (reference remote)
+# `__TITLE__` MFE
 
-This package is the canonical Module Federation remote for NammaMedMate.
+- Domain: `https://__DOMAIN__`
+- Standalone: `pnpm --filter __PACKAGE__ dev`
+- Federated expose: `./Mfe` via package-root `index.tsx`
 
-## Contract
+## Layout
 
-The exposed module `./Mfe` accepts **exactly one prop**:
-
-```tsx
-<TodoMfe data={envelope} />
 ```
-
-`data` is an `MfeDataEnvelope<TodoFeatureData>` from `@medmate/contracts`.
-
-## Local development
-
-```bash
-pnpm --filter __PACKAGE__ dev
+bootstrap.tsx
+index.tsx
+src/
+  components/ + __tests__/
+  hooks/ + __tests__/
+  constants/ + __tests__/
+  services/ + __tests__/
+  store/ + __tests__/
+  utils/ + __tests__/
+  types/
+  styles/
+  test/
 ```
-
-Open http://localhost:__PORT__ for the standalone harness.
-
-## Production URL
-
-Stable domain: `https://__DOMAIN__/mf-manifest.json`
-
-Hosts (e.g. MED0002) should point `VITE_REMOTE_TODO_URL` at that manifest.

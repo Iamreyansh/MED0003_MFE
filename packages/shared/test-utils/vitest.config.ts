@@ -1,20 +1,12 @@
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vitest/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createVitestConfig } from '../../../config/vitest/base';
 
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    coverage: {
-      provider: 'v8',
-      thresholds: {
-        statements: 100,
-        branches: 100,
-        functions: 100,
-        lines: 100,
-      },
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.tsx'],
-    },
-  },
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+
+export default createVitestConfig({
+  rootDir,
+  environment: 'jsdom',
+  withReact: true,
+  coverageExclude: ['src/**/*.test.tsx'],
 });

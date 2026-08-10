@@ -7,20 +7,25 @@
     "dev": "vite --port 5101 --strictPort",
     "build": "tsc -p tsconfig.app.json --noEmit && vite build",
     "preview": "vite preview --port 5101 --strictPort",
-    "lint": "eslint src --max-warnings=0",
-    "lint:fix": "eslint src --fix",
+    "lint": "eslint . --max-warnings=0 --ignore-pattern dist --ignore-pattern coverage",
+    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern coverage",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@medmate/contracts": "workspace:*",
+    "@medmate/mfe-kit": "workspace:*",
     "@medmate/ui": "workspace:*",
+    "@reduxjs/toolkit": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-redux": "catalog:"
   },
   "devDependencies": {
     "@medmate/test-utils": "workspace:*",
+    "@medmate/vite-config": "workspace:*",
+    "@medmate/vitest-config": "workspace:*",
     "@module-federation/vite": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",

@@ -24,6 +24,7 @@
     "@medmate/contracts": "workspace:*"
   },
   "devDependencies": {
+    "@medmate/vitest-config": "workspace:*",
     "@testing-library/dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
