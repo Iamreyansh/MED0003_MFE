@@ -62,4 +62,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "turbo_cache" {
       noncurrent_days = 7
     }
   }
+
+  rule {
+    id     = "expire-ci-artifacts"
+    status = "Enabled"
+
+    filter {
+      prefix = "ci-artifacts/"
+    }
+
+    expiration {
+      days = 14
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 3
+    }
+  }
 }
