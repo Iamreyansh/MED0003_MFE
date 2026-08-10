@@ -3,12 +3,12 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "composite": true,
     "declaration": true,
-    "noEmit": false,
-    "emitDeclarationOnly": true
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "composite": false,
+    "noEmit": false
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"],
-  "references": [{ "path": "../contracts" }]
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }
