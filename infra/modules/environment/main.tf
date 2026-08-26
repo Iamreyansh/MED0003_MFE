@@ -52,6 +52,10 @@ variable "monthly_budget_usd" {
   default = "50"
 }
 
+variable "artifact_bucket_arn" {
+  type = string
+}
+
 data "aws_caller_identity" "current" {}
 
 module "catalog" {
@@ -189,6 +193,26 @@ resource "aws_iam_role" "github_deploy" {
 }
 
 data "aws_iam_policy_document" "github_deploy" {
+  statement {
+    sid       = "ListReleaseArtifacts"
+    effect    = "Allow"
+    actions   = ["s3:ListBucket"]
+    resources = [var.artifact_bucket_arn]
+
+    condition {
+      test     = "StringLike"
+      variable = "s3:prefix"
+      values   = ["releases/", "releases/*"]
+    }
+  }
+
+  statement {
+    sid       = "ReadReleaseArtifacts"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["${var.artifact_bucket_arn}/releases/*"]
+  }
+
   statement {
     sid     = "ListBuckets"
     effect  = "Allow"

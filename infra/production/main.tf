@@ -34,19 +34,20 @@ data "terraform_remote_state" "shared" {
 module "env" {
   source = "../modules/environment"
 
-  environment        = "production"
-  project_name       = var.project_name
-  catalog_path       = "${path.module}/../../config/mfes.json"
-  certificate_arn    = data.terraform_remote_state.shared.outputs.production_certificate_arn
-  hosted_zone_id     = data.terraform_remote_state.shared.outputs.hosted_zone_id
-  allowed_origins    = var.portal_origins
-  alarm_actions      = [data.terraform_remote_state.shared.outputs.alarm_topic_arn]
-  github_org         = data.terraform_remote_state.shared.outputs.github_org
-  github_org_id      = data.terraform_remote_state.shared.outputs.github_org_id
-  github_repo        = data.terraform_remote_state.shared.outputs.github_repo
-  github_repo_id     = data.terraform_remote_state.shared.outputs.github_repo_id
-  oidc_provider_arn  = data.terraform_remote_state.shared.outputs.oidc_provider_arn
-  monthly_budget_usd = var.monthly_budget_usd
+  environment         = "production"
+  project_name        = var.project_name
+  catalog_path        = "${path.module}/../../config/mfes.json"
+  certificate_arn     = data.terraform_remote_state.shared.outputs.production_certificate_arn
+  hosted_zone_id      = data.terraform_remote_state.shared.outputs.hosted_zone_id
+  allowed_origins     = var.portal_origins
+  alarm_actions       = [data.terraform_remote_state.shared.outputs.alarm_topic_arn]
+  github_org          = data.terraform_remote_state.shared.outputs.github_org
+  github_org_id       = data.terraform_remote_state.shared.outputs.github_org_id
+  github_repo         = data.terraform_remote_state.shared.outputs.github_repo
+  github_repo_id      = data.terraform_remote_state.shared.outputs.github_repo_id
+  oidc_provider_arn   = data.terraform_remote_state.shared.outputs.oidc_provider_arn
+  monthly_budget_usd  = var.monthly_budget_usd
+  artifact_bucket_arn = data.terraform_remote_state.shared.outputs.artifact_bucket_arn
 }
 
 output "mfe_sites" {
