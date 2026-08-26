@@ -305,6 +305,12 @@ cmd_smoke() {
   local entry_url="https://${domain}/remoteEntry.js"
   local release_url="https://${domain}/release.json"
   local body headers code chunk chunk_url chunk_code release deployed
+  # CloudFront only emits ACAO when Origin matches an allowed pharmacy portal.
+  local portal_origin="https://pharmacy.nammamedmate.com"
+
+  if [[ "${domain}" == *".staging."* ]]; then
+    portal_origin="https://pharmacy.staging.nammamedmate.com"
+  fi
 
   retry() {
     local attempts="$1"
@@ -333,9 +339,9 @@ cmd_smoke() {
     ' >/dev/null
   fi
 
-  headers="$(curl -fsSIL --retry 5 --retry-delay 2 "${manifest_url}")"
-  echo "${headers}" | grep -qiE 'access-control-allow-origin' || {
-    echo "::error::Missing CORS header on ${manifest_url}" >&2
+  headers="$(curl -fsSIL --retry 5 --retry-delay 2 -H "Origin: ${portal_origin}" "${manifest_url}" | tr -d '\r')"
+  echo "${headers}" | grep -qiF "access-control-allow-origin: ${portal_origin}" || {
+    echo "::error::Missing CORS header on ${manifest_url} for Origin ${portal_origin}" >&2
     exit 1
   }
   echo "${headers}" | grep -qiE 'strict-transport-security' || {
