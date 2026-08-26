@@ -194,6 +194,16 @@ data "aws_iam_policy_document" "apply" {
   }
 
   statement {
+    sid    = "ListOidcProviders"
+    effect = "Allow"
+    actions = [
+      "iam:ListOpenIDConnectProviders",
+      "iam:GetOpenIDConnectProvider",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "ManageStackRoles"
     effect = "Allow"
     actions = [
@@ -210,12 +220,11 @@ data "aws_iam_policy_document" "apply" {
       "iam:DeleteRolePolicy",
       "iam:ListRolePolicies",
       "iam:ListAttachedRolePolicies",
-      "iam:GetOpenIDConnectProvider",
-      "iam:ListOpenIDConnectProviders",
+      "iam:ListRoleTags",
+      "iam:ListInstanceProfilesForRole",
     ]
     resources = [
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-*",
-      data.aws_iam_openid_connect_provider.github.arn,
     ]
   }
 }

@@ -25,15 +25,7 @@ removed {
 }
 
 removed {
-  from = aws_route53_record.mfe_acm_validation["mfe.nammamedmate.com"]
-
-  lifecycle {
-    destroy = false
-  }
-}
-
-removed {
-  from = aws_route53_record.mfe_acm_validation["*.mfe.nammamedmate.com"]
+  from = aws_route53_record.mfe_acm_validation
 
   lifecycle {
     destroy = false
