@@ -24,7 +24,7 @@ docs/adr                     # architecture decisions
 
 - Each MFE lives under `apps/<name>`
 - Every exposed root accepts **exactly one prop**: `data`
-- Stable public domain per MFE: `https://<name>.mfe.nammamedmate.com`
+- Stable public domain per MFE: `https://<name>.mfe.nammamedmate.com` (staging: `https://<name>.staging.mfe.nammamedmate.com`)
 - Host (MED0002) loads `https://<name>.mfe.nammamedmate.com/mf-manifest.json`
 - Public federation surface is always `./Mfe`
 - Domain layout lives inside the remote; global shell stays in MED0002
@@ -43,7 +43,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for sibling layout with Pharmacy Portal.
 
 ```bash
 pnpm create:mfe inventory
-# then: commit catalog change, terraform apply, implement UI
+# then merge to main; staging deploys automatically, production waits on PDT
 ```
 
 ## Quality gates

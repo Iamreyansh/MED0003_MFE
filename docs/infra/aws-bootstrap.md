@@ -2,63 +2,64 @@
 
 Account: `105927215604` · Region: `ap-south-1` · Zone: `nammamedmate.com`
 
-## Prerequisites
+## One-time admin steps
 
-Use a **dedicated IAM admin/bootstrap profile** (not account root).
+These are the only manual steps. After they exist, CI applies Terraform and deploys remotes.
+
+1. Dedicated IAM bootstrap profile (not account root).
+2. Existing OIDC provider `token.actions.githubusercontent.com`.
+3. State bucket `terraform-locks-105927215604` with versioning, encryption, public access block, and native lockfiles.
+4. GitHub Environments `staging` and `production` (production required reviewers).
+5. First apply of `infra/shared` from a trusted admin or `workflow_dispatch` (creates roles, ACM, artifact bucket, SNS).
 
 ```bash
 aws sts get-caller-identity --profile medmate-bootstrap
-# Expected: arn:aws:iam::105927215604:user/medmate-bootstrap
+cd infra/shared && terraform init && terraform apply
+cd ../staging && terraform init && terraform apply
 ```
 
-## Terraform state & locks (S3)
+Do not apply production until staging smoke and PDT have passed for the same git SHA.
 
-Backend (`infra/backend.tf`):
+## GitHub secrets and variables
 
-| Setting   | Value                                                    |
-| --------- | -------------------------------------------------------- |
-| Bucket    | `terraform-locks-105927215604`                           |
-| State key | `MED0003/terraform.tfstate`                              |
-| Locking   | S3 native `use_lockfile = true` (`.tflock` beside state) |
+Secrets (from Terraform outputs):
 
-Provider lockfile stays in git (`infra/.terraform.lock.hcl`) and can be backed up:
-
-```bash
-pnpm tf:lock:backup
-# → s3://terraform-locks-105927215604/MED0003/.terraform.lock.hcl
-```
-
-## Apply MED0003 stack
-
-```bash
-cd infra
-export AWS_PROFILE=medmate-bootstrap
-terraform init
-terraform plan
-terraform apply
-terraform output -json mfe_sites
-terraform output -raw turbo_cache_bucket
-```
-
-## GitHub configuration
-
-Preferred: Environments `production` and `terraform` (requires repo admin).
-
-If Environments are unavailable, repository secrets/variables work with the current OIDC trust (main-branch subjects are allowed).
-
-Secrets:
-
-- `AWS_ROLE_ARN` ← `github_actions_role_arn`
-- `AWS_TF_ROLE_ARN` ← `github_actions_terraform_role_arn`
+| Secret                             | Output                              |
+| ---------------------------------- | ----------------------------------- |
+| `AWS_TF_PLAN_ROLE_ARN`             | `github_plan_role_arn` (shared)     |
+| `AWS_TF_APPLY_STAGING_ROLE_ARN`    | `github_apply_staging_role_arn`     |
+| `AWS_TF_APPLY_PRODUCTION_ROLE_ARN` | `github_apply_production_role_arn`  |
+| `AWS_ARTIFACTS_ROLE_ARN`           | `github_artifacts_role_arn`         |
+| `AWS_CI_LOGS_ROLE_ARN`             | `github_ci_logs_role_arn`           |
+| `AWS_DEPLOY_STAGING_ROLE_ARN`      | staging `github_deploy_role_arn`    |
+| `AWS_DEPLOY_PRODUCTION_ROLE_ARN`   | production `github_deploy_role_arn` |
 
 Variables:
 
-- `AWS_REGION=ap-south-1`
-- `MFE_SITES_JSON` ← JSON object from `terraform output -json mfe_sites`
-- `TURBO_CACHE_BUCKET` ← `terraform output -raw turbo_cache_bucket`
+| Variable          | Value                    |
+| ----------------- | ------------------------ |
+| `AWS_REGION`      | `ap-south-1`             |
+| `ARTIFACT_BUCKET` | shared `artifact_bucket` |
 
-## Domains created
+Do not set `MFE_SITES_JSON`. Deploy jobs read SSM.
 
-- Wildcard cert: `*.mfe.nammamedmate.com` (+ apex `mfe.nammamedmate.com`)
-- Per MFE: e.g. `todo.mfe.nammamedmate.com`
-- Turbo cache bucket: `med0003-mfe-turbo-cache-<account>`
+GitHub Actions artifact storage is not used. The artifact bucket holds:
+
+| Prefix                         | Purpose                               | Retention  |
+| ------------------------------ | ------------------------------------- | ---------- |
+| `releases/<sha>/<mfe>/`        | Immutable MFE build payloads          | long-lived |
+| `tfplans/<sha>/<stack>/<run>/` | Checksummed Terraform plans           | 14 days    |
+| `ci-logs/<sha>/<run>/<label>/` | Coverage, Playwright, PDT diagnostics | 14 days    |
+
+## Break-glass state recovery
+
+Never force-unlock from CI. If a lock is stuck:
+
+1. Confirm no apply is running.
+2. Inspect the `.tflock` object beside state.
+3. An admin removes the lock object only after that confirmation.
+4. Re-run plan, then apply the new checksummed plan.
+
+## State split
+
+Production keeps the historic state key `MED0003/terraform.tfstate`. Use `scripts/tf-migrate-state.sh` as the operator checklist when moving ACM/IAM into shared and renaming `module.mfe` to `module.env.module.site`.

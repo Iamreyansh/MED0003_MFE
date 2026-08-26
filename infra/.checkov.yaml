@@ -1,0 +1,8 @@
+# Checkov config for MED0003 Terraform stacks.
+compact: true
+framework:
+  - terraform
+quiet: true
+skip-check:
+  - CKV_AWS_18 # access logging is attached via a dedicated logs bucket
+  - CKV2_AWS_32 # CloudFront geo restriction is intentionally none

@@ -10,6 +10,14 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: terraform
-    directory: /infra
+    directory: /infra/shared
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /infra/staging
+    schedule:
+      interval: monthly
+  - package-ecosystem: terraform
+    directory: /infra/production
     schedule:
       interval: monthly

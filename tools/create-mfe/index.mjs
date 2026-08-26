@@ -29,7 +29,12 @@ const port = nextPort(name, catalog);
 const federationName = toFederationName(name);
 const packageName = `@medmate/${name}`;
 const packagePath = `apps/${name}`;
-const domain = `${name}.mfe.nammamedmate.com`;
+const productionSuffix =
+  catalog.environments?.production?.domainSuffix ?? 'mfe.nammamedmate.com';
+const stagingSuffix =
+  catalog.environments?.staging?.domainSuffix ?? 'staging.mfe.nammamedmate.com';
+const domain = `${name}.${productionSuffix}`;
+const stagingDomain = `${name}.${stagingSuffix}`;
 const targetDir = path.join(repoRoot, packagePath);
 
 const entry = {
@@ -143,6 +148,9 @@ fs.writeFileSync(
 );
 
 console.log(`Created ${packageName} at ${packagePath}`);
-console.log(`Domain: https://${domain}`);
-console.log('Next: apply Terraform so the subdomain and CDN are provisioned.');
+console.log(`Production: https://${domain}`);
+console.log(`Staging: https://${stagingDomain}`);
+console.log(
+  'Next: merge to main so Terraform provisions staging, then production after PDT.',
+);
 console.log(`Host checklist: ${packagePath}/HOST_INTEGRATION.md`);

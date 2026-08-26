@@ -1,8 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
-  "required": ["mfes"],
+  "required": ["environments", "mfes"],
   "properties": {
+    "environments": {
+      "type": "object",
+      "required": ["staging", "production"],
+      "additionalProperties": false,
+      "properties": {
+        "staging": { "$ref": "#/$defs/environment" },
+        "production": { "$ref": "#/$defs/environment" }
+      }
+    },
     "mfes": {
       "type": "array",
       "items": {
@@ -37,11 +46,25 @@
             "type": "string",
             "pattern": "^[a-z0-9-]+\\.mfe\\.nammamedmate\\.com$"
           },
-          "owner": { "type": "string" }
+          "owner": { "type": "string", "minLength": 1 }
         },
         "additionalProperties": false
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$defs": {
+    "environment": {
+      "type": "object",
+      "required": ["name", "domainSuffix"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "enum": ["staging", "production"] },
+        "domainSuffix": {
+          "type": "string",
+          "pattern": "^[a-z0-9.-]+\\.nammamedmate\\.com$"
+        }
+      }
+    }
+  }
 }

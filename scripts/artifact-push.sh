@@ -1,43 +1,36 @@
 #!/usr/bin/env bash
-# Upload built MFE dist trees to a private S3 staging prefix for later deploy jobs.
-# Usage: artifact-push.sh
+# Upload packaged MFE dist trees to the immutable artifact bucket.
+# Usage: artifact-push.sh [mfe-name ...]
 set -euo pipefail
 
-BUCKET="${ARTIFACT_BUCKET:-${TURBO_CACHE_BUCKET:-}}"
-PREFIX="${ARTIFACT_PREFIX:-ci-artifacts/${GITHUB_SHA:-local}}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CATALOG="${ROOT}/config/mfes.json"
+BUCKET="${ARTIFACT_BUCKET:?ARTIFACT_BUCKET is required}"
+PREFIX="${ARTIFACT_PREFIX:-releases/${GITHUB_SHA:?GITHUB_SHA is required}}"
+NAMES=("${@}")
 
-if [ -z "$BUCKET" ]; then
-  echo "ARTIFACT_BUCKET (or TURBO_CACHE_BUCKET) is required." >&2
-  exit 1
+if [[ "${#NAMES[@]}" -eq 0 ]]; then
+  mapfile -t NAMES < <(node "${ROOT}/scripts/catalog.mjs" list | jq -r '.[]')
 fi
 
-if [ ! -f "${CATALOG}" ]; then
-  echo "Missing MFE catalog at ${CATALOG}" >&2
-  exit 1
-fi
-
-echo "Uploading MFE dists to s3://${BUCKET}/${PREFIX}/ ..."
 uploaded=0
-while IFS= read -r row; do
-  name="$(echo "${row}" | jq -r '.name')"
-  rel="dist/${name}"
-  dist="${ROOT}/${rel}"
-  if [ ! -d "${dist}" ]; then
-    echo "Missing dist for ${name}: ${rel}" >&2
+for name in "${NAMES[@]}"; do
+  dist="${ROOT}/dist/${name}"
+  if [[ ! -d "${dist}" ]]; then
+    echo "Missing dist for ${name}: dist/${name}" >&2
     exit 1
   fi
-  aws s3 sync "${dist}/" "s3://${BUCKET}/${PREFIX}/${rel}/" \
+  chmod +x "${ROOT}/scripts/verify-federation.sh"
+  "${ROOT}/scripts/verify-federation.sh" "${dist}" "${name}"
+  aws s3 sync "${dist}/" "s3://${BUCKET}/${PREFIX}/${name}/" \
     --delete \
     --only-show-errors
-  echo "  uploaded ${rel}"
+  echo "  uploaded ${name}"
   uploaded=$((uploaded + 1))
-done < <(jq -c '.mfes[]' "${CATALOG}")
+done
 
-if [ "${uploaded}" -eq 0 ]; then
-  echo "No catalog remotes to upload." >&2
+if [[ "${uploaded}" -eq 0 ]]; then
+  echo "No remotes to upload." >&2
   exit 1
 fi
 
-echo "Artifact push complete."
+echo "Artifact push complete (${uploaded})."

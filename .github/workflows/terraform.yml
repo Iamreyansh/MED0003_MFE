@@ -2,18 +2,39 @@ name: Terraform
 
 on:
   pull_request:
-    paths: ['infra/**', 'config/mfes.json']
+    paths:
+      - 'infra/**'
+      - 'config/mfes.json'
+      - 'scripts/tf-*.sh'
+      - 'scripts/tf-policy.mjs'
+      - '.github/workflows/terraform.yml'
   push:
     branches: [main]
-    paths: ['infra/**', 'config/mfes.json']
+    paths:
+      - 'infra/**'
+      - 'config/mfes.json'
+      - 'scripts/tf-*.sh'
+      - 'scripts/tf-policy.mjs'
+      - '.github/workflows/terraform.yml'
   workflow_dispatch:
     inputs:
+      stack:
+        description: 'shared, staging, production, or all'
+        required: true
+        default: 'all'
+        type: choice
+        options: [all, shared, staging, production]
       action:
         description: 'plan or apply'
         required: true
         default: 'plan'
         type: choice
         options: [plan, apply]
+      allow_destructive:
+        description: 'Allow production destroy/replace after explicit approval'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -21,102 +42,162 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: terraform-med0003
+  group: terraform-${{ github.event.inputs.stack || 'all' }}-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   TF_VERSION: '1.10.5'
   AWS_REGION: ap-south-1
+  ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
 
 jobs:
-  terraform:
+  classify:
+    name: classify
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.affected.outputs.matrix }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+        with:
+          fetch-depth: 0
+      - id: affected
+        run: |
+          set -euo pipefail
+          chmod +x scripts/tf-affected.sh
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            STACK="${{ github.event.inputs.stack }}"
+            if [ "${STACK}" = "all" ]; then
+              MATRIX='{"include":[{"stack":"shared"},{"stack":"staging"},{"stack":"production"}]}'
+            else
+              MATRIX="$(jq -cn --arg stack "${STACK}" '{include:[{stack:$stack}]}')"
+            fi
+          else
+            BEFORE="${{ github.event.before || github.event.pull_request.base.sha }}"
+            MATRIX="$(./scripts/tf-affected.sh "${BEFORE:-origin/main}")"
+            if [ "${MATRIX}" = '{"include":[]}' ]; then
+              MATRIX='{"include":[{"stack":"shared"},{"stack":"staging"},{"stack":"production"}]}'
+            fi
+          fi
+          echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
 
+  validate:
+    name: validate-${{ matrix.stack }}
+    needs: classify
+    if: needs.classify.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.classify.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: infra/${{ matrix.stack }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
       - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
         with:
-          role-to-assume: ${{ secrets.AWS_TF_ROLE_ARN }}
-          role-session-name: terraform-med0003-${{ github.run_id }}
+          role-to-assume: ${{ secrets.AWS_TF_PLAN_ROLE_ARN || secrets.AWS_TF_ROLE_ARN }}
+          role-session-name: terraform-plan-${{ matrix.stack }}-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
-
       - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Format
-        run: terraform fmt -check -recursive
-
-      - name: Init
-        run: terraform init -input=false
-
-      - name: Validate
-        run: terraform validate
-
-      - name: Plan
-        id: plan
+      - name: TFLint
+        working-directory: .
         run: |
-          set -euo pipefail
-          terraform plan -input=false -no-color -out=tfplan | tee plan.txt
-
+          curl -sL https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --chdir="infra/${{ matrix.stack }}" --config infra/.tflint.hcl --recursive
+      - name: Plan
+        working-directory: .
+        env:
+          ALLOW_DESTRUCTIVE: ${{ github.event.inputs.allow_destructive || 'false' }}
+        run: |
+          chmod +x scripts/tf-plan.sh scripts/tf-plan-push.sh
+          ./scripts/tf-plan.sh "${{ matrix.stack }}"
+          node scripts/tf-policy.mjs "infra/${{ matrix.stack }}/tfplan.json" "${{ matrix.stack }}"
+          ./scripts/tf-plan-push.sh "${{ matrix.stack }}"
+      - name: Checkov
+        working-directory: .
+        run: |
+          pip install checkov
+          checkov -d "infra/${{ matrix.stack }}" --config-file infra/.checkov.yaml
       - name: Plan summary
-        if: always() && steps.plan.outcome == 'success'
-        working-directory: infra
+        if: always()
+        working-directory: .
         run: |
           {
-            echo '### Terraform plan'
-            echo ''
-            echo '```'
-            # Cap summary size for GitHub UI
-            head -n 400 plan.txt
+            echo "### Terraform ${{ matrix.stack }}"
+            echo
+            echo '```json'
+            node scripts/tf-policy.mjs "infra/${{ matrix.stack }}/tfplan.json" "${{ matrix.stack }}" || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Comment plan on PR
-        if: github.event_name == 'pull_request' && steps.plan.outcome == 'success'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        if: github.event_name == 'pull_request'
         with:
           script: |
             const fs = require('fs');
-            const plan = fs.readFileSync('infra/plan.txt', 'utf8');
-            const body = [
-              '### Terraform plan',
-              '',
-              '<details><summary>Show plan</summary>',
-              '',
-              '```',
-              plan.slice(0, 60000),
-              '```',
-              '',
-              '</details>',
-            ].join('\n');
+            const stack = '${{ matrix.stack }}';
+            const marker = `<!-- terraform-plan-${stack} -->`;
+            let body = `${marker}\n### Terraform plan (${stack})\n`;
+            try {
+              const report = fs.readFileSync(`infra/${stack}/tfplan.json`, 'utf8');
+              body += `\n<details><summary>Show plan JSON excerpt</summary>\n\n\`\`\`json\n${report.slice(0, 20000)}\n\`\`\`\n</details>\n`;
+            } catch (error) {
+              body += `\nPlan artifact missing: ${error.message}`;
+            }
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.name,
               issue_number: context.issue.number,
             });
-            const marker = '<!-- terraform-plan -->';
             const existing = comments.find((c) => c.user?.type === 'Bot' && c.body?.includes(marker));
-            const content = `${marker}\n${body}`;
             if (existing) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.name,
                 comment_id: existing.id,
-                body: content,
+                body,
               });
             } else {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.name,
                 issue_number: context.issue.number,
-                body: content,
+                body,
               });
             }
 
-      - name: Apply
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
-        run: terraform apply -input=false -auto-approve tfplan
+  apply:
+    name: apply-${{ matrix.stack }}
+    needs: [classify, validate]
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.action == 'apply' &&
+      needs.classify.outputs.matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: ${{ matrix.stack == 'production' && 'production' || 'staging' }}
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJson(needs.classify.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
+        with:
+          role-to-assume: ${{ matrix.stack == 'production' && (secrets.AWS_TF_APPLY_PRODUCTION_ROLE_ARN || secrets.AWS_TF_ROLE_ARN) || matrix.stack == 'staging' && (secrets.AWS_TF_APPLY_STAGING_ROLE_ARN || secrets.AWS_TF_ROLE_ARN) || (secrets.AWS_TF_APPLY_STAGING_ROLE_ARN || secrets.AWS_TF_ROLE_ARN) }}
+          role-session-name: terraform-apply-${{ matrix.stack }}-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: Fresh plan and apply
+        env:
+          ALLOW_DESTRUCTIVE: ${{ github.event.inputs.allow_destructive || 'false' }}
+        run: |
+          chmod +x scripts/tf-plan.sh scripts/tf-apply.sh scripts/tf-plan-push.sh
+          ./scripts/tf-plan.sh "${{ matrix.stack }}"
+          node scripts/tf-policy.mjs "infra/${{ matrix.stack }}/tfplan.json" "${{ matrix.stack }}"
+          ./scripts/tf-plan-push.sh "${{ matrix.stack }}"
+          ./scripts/tf-apply.sh "${{ matrix.stack }}"

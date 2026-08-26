@@ -1,31 +1,36 @@
 # Deploy & rollback
 
-## Deploy path
+Remotes are built once per git SHA, stored in the artifact bucket, promoted to staging, verified, then promoted to production as the same bytes.
 
-1. Build remotes → repo-root `dist/<name>/`
-2. Upload immutable objects to `s3://<bucket>/releases/<git-sha>/`
-3. Promote root `mf-manifest.json` + `remoteEntry.js` (no-cache)
-4. Invalidate CloudFront paths `/mf-manifest.json`, `/remoteEntry.js`, `/current/*`
-5. **Post-deploy smoke** via `scripts/post-deploy-smoke.sh` (manifest + remoteEntry)
-
-Host apps keep a stable env var and do not need redeploy when only remotes change.
-
-## CI
-
-- Separate jobs: **format**, **lint**, **test**, **build**
-- Deploy uses a **matrix** over affected MFEs from `scripts/affected-mfes.sh`
-- Each deploy job is followed by a matrix **post-deploy** smoke job
-
-## Turbo cache (S3)
-
-```bash
-export TURBO_CACHE_BUCKET="$(terraform -chdir=infra output -raw turbo_cache_bucket)"
-pnpm cache:pull   # before local/CI builds
-pnpm cache:push   # after successful builds
+```text
+classify affected MFEs
+  → apply shared/staging Terraform
+  → matrix build + package + checksum
+  → matrix staging promote
+  → matrix staging smoke + matrix staging PDT
+  → staging-gate (every leg must succeed)
+  → production environment approval
+  → apply production Terraform
+  → matrix production promote + smoke
 ```
+
+Production jobs declare a fail-closed dependency on the aggregate staging gate. A skipped, cancelled, timed-out, or failed smoke or PDT matrix leg blocks production.
+
+## Staging verification
+
+- **Smoke** (`scripts/post-deploy-smoke.sh`): manifest, `remoteEntry.js`, referenced chunks, CORS/HSTS, `release.json` SHA.
+- **PDT** (`scripts/post-deploy-pdt.sh`): Playwright specs against `https://<name>.staging.mfe.nammamedmate.com` with `PDT_BASE_URL` (no local webServer).
+
+Matrix `fail-fast: false` so every affected MFE reports. The gate still fails unless every leg succeeded.
 
 ## Rollback
 
-GitHub → Actions → **Rollback MFE** → provide `mfe` + previous `git_sha`.
+GitHub → Actions → **Rollback MFE** → environment, MFE name, previous SHA.
 
-This copies `/releases/<sha>/mf-manifest.json` back to the bucket root and invalidates CDN.
+This pulls the immutable artifact and runs `promote-mfe.sh` (full dist, not manifest-only). Failed production smoke automatically restores the previous known-good SHA from SSM and still fails the workflow.
+
+## CI
+
+PR workflow `.github/workflows/ci.yml` is the quality gate. The required check name is `ci-success`. Release workflow does not re-run lint/unit/e2e.
+
+Failure diagnostics (coverage, Playwright traces, PDT reports) and Terraform plans are stored in the private S3 artifact bucket. GitHub Actions artifact storage is not used.

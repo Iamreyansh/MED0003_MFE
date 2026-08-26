@@ -40,5 +40,5 @@ Then:
 3. Add Playwright coverage in `e2e/specs`
 4. Wire the host (MED0002): remotes registry + route — see the generator checklist
 5. Open a PR (CI validates uniqueness + quality)
-6. Apply Terraform so DNS/CDN exist
-7. Merge to `main` to deploy
+6. Merge to `main`. Staging Terraform and CDN are applied automatically
+7. Production promote runs only after staging smoke and PDT pass for every affected MFE

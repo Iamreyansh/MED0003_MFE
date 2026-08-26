@@ -3,40 +3,57 @@ set -euo pipefail
 
 # Emit JSON matrix of MFEs affected by the current git range.
 # Usage: affected-mfes.sh [base_ref]
+# Shared/tooling/catalog changes select every remote.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-CATALOG="${ROOT}/config/mfes.json"
+# shellcheck disable=SC1091
+source "${ROOT}/scripts/lib/catalog.sh"
 BASE_REF="${1:-origin/main}"
+CATALOG="$(load_catalog_json)"
 
-if ! git rev-parse --verify "${BASE_REF}" >/dev/null 2>&1; then
-  # First push / empty history — treat all as affected.
-  jq -c '{include: [.mfes[] | {name, package, path, domain}]}' "${CATALOG}"
+if ! git -C "${ROOT}" rev-parse --verify "${BASE_REF}" >/dev/null 2>&1; then
+  node "${ROOT}/scripts/catalog.mjs" matrix
   exit 0
 fi
 
-CHANGED="$(git diff --name-only "${BASE_REF}...HEAD" || true)"
+CHANGED="$(git -C "${ROOT}" diff --name-only "${BASE_REF}...HEAD" || true)"
 SHARED_HIT=0
-if echo "${CHANGED}" | grep -E '^(packages/|config/|scripts/|\.github/workflows/|pnpm-lock\.yaml|package\.json|turbo\.json|pnpm-workspace\.yaml)' >/dev/null; then
+if echo "${CHANGED}" | grep -E '^(packages/|config/|scripts/|infra/|\.github/|pnpm-lock\.yaml|package\.json|turbo\.json|pnpm-workspace.yaml|eslint.config.js|tsconfig.json)' >/dev/null; then
   SHARED_HIT=1
 fi
 
-INCLUDE='[]'
+NAMES=()
 while IFS= read -r row; do
   name="$(echo "${row}" | jq -r '.name')"
   path="$(echo "${row}" | jq -r '.path')"
-  package="$(echo "${row}" | jq -r '.package')"
-  domain="$(echo "${row}" | jq -r '.domain')"
   if [[ "${SHARED_HIT}" -eq 1 ]] || echo "${CHANGED}" | grep -E "^${path}/" >/dev/null; then
-    INCLUDE="$(jq -c --arg name "${name}" --arg package "${package}" --arg path "${path}" --arg domain "${domain}" \
-      '. + [{name:$name, package:$package, path:$path, domain:$domain}]' <<<"${INCLUDE}")"
+    NAMES+=("${name}")
   fi
-done < <(jq -c '.mfes[]' "${CATALOG}")
+done < <(echo "${CATALOG}" | jq -c '.mfes[]')
 
-if [[ "${INCLUDE}" == "[]" ]]; then
-  # Force catalog remotes when the catalog itself changed.
-  if echo "${CHANGED}" | grep -E '^config/mfes\.json$' >/dev/null; then
-    INCLUDE="$(jq -c '[.mfes[] | {name, package, path, domain}]' "${CATALOG}")"
-  fi
+if [[ "${#NAMES[@]}" -eq 0 ]]; then
+  echo '{"include":[]}'
+  exit 0
 fi
 
-jq -cn --argjson include "${INCLUDE}" '{include:$include}'
+FILTER="$(printf '%s\n' "${NAMES[@]}" | jq -R . | jq -s .)"
+echo "${CATALOG}" | jq -c --argjson names "${FILTER}" '
+  . as $catalog
+  | {
+      include: [
+        .mfes[]
+        | select(.name as $n | $names | index($n))
+        | {
+            name,
+            package,
+            path,
+            federationName,
+            port,
+            owner,
+            domain,
+            stagingDomain: "\(.name).\($catalog.environments.staging.domainSuffix)",
+            productionDomain: .domain
+          }
+      ]
+    }
+'

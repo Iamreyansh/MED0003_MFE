@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port __PORT__ --strictPort",
+    "dev": "vite",
     "build": "tsc -p tsconfig.app.json --noEmit && vite build",
-    "preview": "vite preview --port __PORT__ --strictPort",
+    "preview": "vite preview",
     "lint": "eslint . --max-warnings=0 --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
     "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",

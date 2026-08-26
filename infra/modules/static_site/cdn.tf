@@ -1,91 +1,5 @@
-variable "name" {
-  type = string
-}
-
-variable "domain_name" {
-  type = string
-}
-
-variable "certificate_arn" {
-  type = string
-}
-
-variable "hosted_zone_id" {
-  type = string
-}
-
-variable "project_name" {
-  type = string
-}
-
-variable "allowed_origins" {
-  type = list(string)
-}
-
-data "aws_caller_identity" "current" {}
-
-locals {
-  bucket_name = "${var.project_name}-${var.name}-${data.aws_caller_identity.current.account_id}"
-}
-
-resource "aws_s3_bucket" "assets" {
-  bucket = local.bucket_name
-
-  tags = {
-    Project = var.project_name
-    Mfe     = var.name
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_ownership_controls" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  rule {
-    object_ownership = "BucketOwnerEnforced"
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
-resource "aws_s3_bucket_versioning" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_cors_configuration" "assets" {
-  bucket = aws_s3_bucket.assets.id
-
-  cors_rule {
-    allowed_headers = ["*"]
-    allowed_methods = ["GET", "HEAD"]
-    allowed_origins = var.allowed_origins
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
-  }
-}
-
 resource "aws_cloudfront_origin_access_control" "assets" {
-  name                              = "${var.project_name}-${var.name}-oac"
+  name                              = "${var.name_prefix}-oac"
   description                       = "OAC for ${var.domain_name}"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -93,7 +7,7 @@ resource "aws_cloudfront_origin_access_control" "assets" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "cors" {
-  name = "${var.project_name}-${var.name}-cors"
+  name = "${var.name_prefix}-cors"
 
   cors_config {
     access_control_allow_credentials = false
@@ -143,7 +57,7 @@ resource "aws_cloudfront_response_headers_policy" "cors" {
 }
 
 resource "aws_cloudfront_cache_policy" "immutable" {
-  name        = "${var.project_name}-${var.name}-immutable"
+  name        = "${var.name_prefix}-immutable"
   default_ttl = 31536000
   max_ttl     = 31536000
   min_ttl     = 31536000
@@ -164,7 +78,7 @@ resource "aws_cloudfront_cache_policy" "immutable" {
 }
 
 resource "aws_cloudfront_cache_policy" "manifest" {
-  name        = "${var.project_name}-${var.name}-manifest"
+  name        = "${var.name_prefix}-manifest"
   default_ttl = 0
   max_ttl     = 60
   min_ttl     = 0
@@ -187,10 +101,12 @@ resource "aws_cloudfront_cache_policy" "manifest" {
 resource "aws_cloudfront_distribution" "assets" {
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "${var.project_name} ${var.name} MFE"
+  comment             = "${var.project_name} ${var.environment} ${var.name} MFE"
   aliases             = [var.domain_name]
   price_class         = "PriceClass_200"
   default_root_object = "index.html"
+  wait_for_deployment = true
+  tags                = local.common_tags
 
   origin {
     domain_name              = aws_s3_bucket.assets.bucket_regional_domain_name
@@ -230,6 +146,17 @@ resource "aws_cloudfront_distribution" "assets" {
     response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
   }
 
+  ordered_cache_behavior {
+    path_pattern               = "/release.json"
+    allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "s3-${var.name}"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    cache_policy_id            = aws_cloudfront_cache_policy.manifest.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
+  }
+
   restrictions {
     geo_restriction {
       restriction_type = "none"
@@ -240,11 +167,6 @@ resource "aws_cloudfront_distribution" "assets" {
     acm_certificate_arn      = var.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
-  }
-
-  tags = {
-    Project = var.project_name
-    Mfe     = var.name
   }
 }
 
@@ -298,26 +220,46 @@ resource "aws_route53_record" "ipv6" {
   }
 }
 
-output "bucket_name" {
-  value = aws_s3_bucket.assets.bucket
+resource "aws_cloudwatch_metric_alarm" "origin_5xx" {
+  alarm_name          = "${var.name_prefix}-5xx"
+  alarm_description   = "CloudFront 5xx rate for ${var.domain_name}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "5xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 5
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = var.alarm_actions
+  ok_actions          = var.alarm_actions
+
+  dimensions = {
+    DistributionId = aws_cloudfront_distribution.assets.id
+    Region         = "Global"
+  }
+
+  tags = local.common_tags
 }
 
-output "bucket_arn" {
-  value = aws_s3_bucket.assets.arn
-}
+resource "aws_cloudwatch_metric_alarm" "origin_4xx" {
+  alarm_name          = "${var.name_prefix}-4xx"
+  alarm_description   = "CloudFront 4xx rate for ${var.domain_name}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "4xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 25
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = var.alarm_actions
+  ok_actions          = var.alarm_actions
 
-output "distribution_id" {
-  value = aws_cloudfront_distribution.assets.id
-}
+  dimensions = {
+    DistributionId = aws_cloudfront_distribution.assets.id
+    Region         = "Global"
+  }
 
-output "distribution_arn" {
-  value = aws_cloudfront_distribution.assets.arn
-}
-
-output "domain_name" {
-  value = var.domain_name
-}
-
-output "manifest_url" {
-  value = "https://${var.domain_name}/mf-manifest.json"
+  tags = local.common_tags
 }

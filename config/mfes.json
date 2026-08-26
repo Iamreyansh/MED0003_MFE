@@ -1,5 +1,15 @@
 {
   "$schema": "./mfes.schema.json",
+  "environments": {
+    "staging": {
+      "name": "staging",
+      "domainSuffix": "staging.mfe.nammamedmate.com"
+    },
+    "production": {
+      "name": "production",
+      "domainSuffix": "mfe.nammamedmate.com"
+    }
+  },
   "mfes": [
     {
       "name": "todo",
