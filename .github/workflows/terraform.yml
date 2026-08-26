@@ -93,6 +93,7 @@ jobs:
     needs: classify
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: terraform
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.classify.outputs.matrix) }}

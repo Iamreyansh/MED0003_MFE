@@ -3,8 +3,10 @@ locals {
     plan = [
       "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:pull_request",
       "repo:${var.github_org}/${var.github_repo}:pull_request",
-      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:ref:refs/heads/main",
-      "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main",
+      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:environment:terraform",
+      "repo:${var.github_org}/${var.github_repo}:environment:terraform",
+      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:ref:refs/heads/*",
+      "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/*",
     ]
     apply_staging = [
       "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:environment:staging",
