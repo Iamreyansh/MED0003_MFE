@@ -5,7 +5,13 @@ framework:
 quiet: true
 skip-check:
   - CKV_AWS_18 # access logging is attached via a dedicated logs bucket
+  - CKV_AWS_86 # CloudFront standard logging is omitted; origin access logs go to the dedicated bucket
   - CKV2_AWS_32 # CloudFront geo restriction is intentionally none
+  - CKV_AWS_374 # same geo choice as CKV2_AWS_32
+  - CKV_AWS_68 # static MFE distributions do not use WAF
+  - CKV2_AWS_47 # no WAF, so no Log4j AMR
+  - CKV_AWS_310 # single S3 origin; no failover origin
+  - CKV2_AWS_34 # SSM holds non-secret site metadata as String
   - CKV_AWS_26 # SNS topics are account-internal; CMK would add KMS grants to apply
   - CKV_AWS_108 # Terraform plan/apply roles need read-across the account
   - CKV_AWS_109 # Terraform apply role manages IAM for GitHub OIDC roles

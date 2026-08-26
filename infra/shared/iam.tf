@@ -3,8 +3,10 @@ locals {
     plan = [
       "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:pull_request",
       "repo:${var.github_org}/${var.github_repo}:pull_request",
-      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:ref:refs/heads/main",
-      "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/main",
+      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:environment:terraform",
+      "repo:${var.github_org}/${var.github_repo}:environment:terraform",
+      "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:ref:refs/heads/*",
+      "repo:${var.github_org}/${var.github_repo}:ref:refs/heads/*",
     ]
     apply_staging = [
       "repo:${var.github_org}@${var.github_org_id}/${var.github_repo}@${var.github_repo_id}:environment:staging",
@@ -146,6 +148,7 @@ data "aws_iam_policy_document" "plan_read" {
       "iam:List*",
       "ssm:Get*",
       "ssm:List*",
+      "ssm:Describe*",
       "sns:Get*",
       "sns:List*",
       "cloudwatch:Describe*",
@@ -153,6 +156,7 @@ data "aws_iam_policy_document" "plan_read" {
       "cloudwatch:List*",
       "budgets:ViewBudget",
       "budgets:Describe*",
+      "budgets:ListTagsForResource",
       "sts:GetCallerIdentity",
     ]
     resources = ["*"]
@@ -194,6 +198,16 @@ data "aws_iam_policy_document" "apply" {
   }
 
   statement {
+    sid    = "ListOidcProviders"
+    effect = "Allow"
+    actions = [
+      "iam:ListOpenIDConnectProviders",
+      "iam:GetOpenIDConnectProvider",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
     sid    = "ManageStackRoles"
     effect = "Allow"
     actions = [
@@ -210,12 +224,11 @@ data "aws_iam_policy_document" "apply" {
       "iam:DeleteRolePolicy",
       "iam:ListRolePolicies",
       "iam:ListAttachedRolePolicies",
-      "iam:GetOpenIDConnectProvider",
-      "iam:ListOpenIDConnectProviders",
+      "iam:ListRoleTags",
+      "iam:ListInstanceProfilesForRole",
     ]
     resources = [
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.project_name}-*",
-      data.aws_iam_openid_connect_provider.github.arn,
     ]
   }
 }
