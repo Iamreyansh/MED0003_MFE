@@ -82,7 +82,7 @@
     "tailwindcss": "catalog:",
     "turbo": "^2.5.4",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.35.1",
+    "typescript-eslint": "^8.67.0",
     "vite": "catalog:",
     "vitest": "catalog:"
   },
