@@ -184,7 +184,7 @@ cmd_promote() {
   local name="${2:?mfe name required}"
   local dist_dir="${3:?dist dir required}"
   local git_sha="${4:?git sha required}"
-  local packaged_sha bucket distribution_id release_prefix invalidation_id
+  local packaged_sha bucket distribution_id domain release_prefix invalidation_id
 
   cmd_verify "${dist_dir}" "${name}"
 
@@ -199,9 +199,14 @@ cmd_promote() {
     exit 1
   fi
 
+  # TARGET_* come from eval of cmd_targets (bucket, distribution_id, domain).
   eval "$(cmd_targets "${environment}" "${name}" | sed 's/^/TARGET_/')"
+  # shellcheck disable=SC2154
   bucket="${TARGET_bucket:?}"
+  # shellcheck disable=SC2154
   distribution_id="${TARGET_distribution_id:?}"
+  # shellcheck disable=SC2154
+  domain="${TARGET_domain:?}"
   release_prefix="releases/${git_sha}"
 
   echo "Promoting ${name} @ ${git_sha} to ${environment} s3://${bucket}/${release_prefix}/"
@@ -271,7 +276,7 @@ cmd_promote() {
   )"
 
   wait_invalidation "${distribution_id}" "${invalidation_id}"
-  echo "Promoted ${name} ${environment} https://${TARGET_domain}/mf-manifest.json"
+  echo "Promoted ${name} ${environment} https://${domain}/mf-manifest.json"
 }
 
 cmd_record() {
