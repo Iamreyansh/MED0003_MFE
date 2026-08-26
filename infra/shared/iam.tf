@@ -148,6 +148,7 @@ data "aws_iam_policy_document" "plan_read" {
       "iam:List*",
       "ssm:Get*",
       "ssm:List*",
+      "ssm:Describe*",
       "sns:Get*",
       "sns:List*",
       "cloudwatch:Describe*",
@@ -155,6 +156,7 @@ data "aws_iam_policy_document" "plan_read" {
       "cloudwatch:List*",
       "budgets:ViewBudget",
       "budgets:Describe*",
+      "budgets:ListTagsForResource",
       "sts:GetCallerIdentity",
     ]
     resources = ["*"]
