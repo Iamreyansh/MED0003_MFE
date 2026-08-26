@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type UserConfig } from 'vitest/config';
 
@@ -10,12 +11,16 @@ export const COVERAGE_THRESHOLDS = {
   lines: 100,
 } as const;
 
+const DEFAULT_JEST_DOM_SETUP = fileURLToPath(
+  new URL('./setup.js', import.meta.url),
+);
+
 export type CreateVitestConfigOptions = {
   /** Absolute path to the package root. */
   rootDir: string;
   /** jsdom for React packages, node for pure TS libs. */
   environment?: 'jsdom' | 'node';
-  /** Relative setup file path(s) from package root. */
+  /** Extra setup files merged after the shared jest-dom setup (jsdom only). */
   setupFiles?: string | string[];
   /** Extra coverage excludes (merged with defaults). */
   coverageExclude?: string[];
@@ -51,6 +56,17 @@ export function createVitestConfig(
     ...rest
   } = override;
 
+  const extraSetup = setupFiles
+    ? Array.isArray(setupFiles)
+      ? setupFiles
+      : [setupFiles]
+    : [];
+
+  const setup =
+    environment === 'jsdom'
+      ? [DEFAULT_JEST_DOM_SETUP, ...extraSetup]
+      : extraSetup;
+
   return defineConfig({
     ...rest,
     plugins: withReact
@@ -64,8 +80,16 @@ export function createVitestConfig(
       },
     },
     test: {
+      ...overrideTest,
       environment,
-      setupFiles,
+      setupFiles: setup.length > 0 ? setup : undefined,
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/e2e/**',
+        '**/coverage/**',
+        ...(overrideTest?.exclude ?? []),
+      ],
       coverage: {
         provider: 'v8',
         thresholds: { ...COVERAGE_THRESHOLDS },
@@ -75,15 +99,16 @@ export function createVitestConfig(
           'src/types/**',
           'src/contract.ts',
           'src/testing/**',
+          'src/entrypoints/**',
           'src/**/*.d.ts',
           'src/**/*.test.{ts,tsx}',
           'src/**/__tests__/**',
+          'e2e/**',
           'bootstrap.tsx',
           'index.tsx',
           ...coverageExclude,
         ],
       },
-      ...overrideTest,
     },
   });
 }

@@ -1,5 +1,11 @@
 # Local development
 
+Install Playwright browsers once after `pnpm install`:
+
+```bash
+pnpm exec playwright install chromium
+```
+
 ## Run Todo alone
 
 ```bash
@@ -10,15 +16,16 @@ pnpm dev:todo
 
 ## Useful root scripts
 
-| Script                           | Purpose                                                 |
-| -------------------------------- | ------------------------------------------------------- |
-| `pnpm quality`                   | validate + format + lint + typecheck + coverage + build |
-| `pnpm create:mfe <name>`         | scaffold a remote                                       |
-| `pnpm affected`                  | print affected MFE deploy matrix                        |
-| `pnpm cache:pull` / `cache:push` | sync Turborepo cache with S3                            |
-| `pnpm smoke:mfe <domain>`        | post-deploy smoke                                       |
-| `pnpm dev:with-host`             | start Todo + print Portal `.env` snippet                |
-| `pnpm tf:plan` / `tf:apply`      | Terraform helpers                                       |
+| Script                           | Purpose                                                       |
+| -------------------------------- | ------------------------------------------------------------- |
+| `pnpm quality`                   | validate + format + lint + typecheck + coverage + e2e + build |
+| `pnpm test:e2e`                  | Playwright suites under `apps/<mfe>/e2e`                      |
+| `pnpm create:mfe <name>`         | scaffold a remote                                             |
+| `pnpm affected`                  | print affected MFE deploy matrix                              |
+| `pnpm cache:pull` / `cache:push` | sync Turborepo cache with S3                                  |
+| `pnpm smoke:mfe <domain>`        | post-deploy smoke                                             |
+| `pnpm dev:with-host`             | start Todo + print Portal `.env` snippet                      |
+| `pnpm tf:plan` / `tf:apply`      | Terraform helpers                                             |
 
 ## Run with PharmacyPortal host
 
@@ -53,5 +60,5 @@ import {
 } from '@medmate/mfe-kit';
 ```
 
-See `packages/components/todo/src/store/createTodoStore.ts` and
-`packages/components/todo/src/store/todoThunks.ts` for a thunk example.
+See `apps/todo/src/features/todos/model/createTodoStore.ts` and
+`apps/todo/src/features/todos/model/todoThunks.ts` for a thunk example.

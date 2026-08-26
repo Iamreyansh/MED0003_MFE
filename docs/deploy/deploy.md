@@ -2,7 +2,7 @@
 
 ## Deploy path
 
-1. Build package → `dist/`
+1. Build remotes → repo-root `dist/<name>/`
 2. Upload immutable objects to `s3://<bucket>/releases/<git-sha>/`
 3. Promote root `mf-manifest.json` + `remoteEntry.js` (no-cache)
 4. Invalidate CloudFront paths `/mf-manifest.json`, `/remoteEntry.js`, `/current/*`

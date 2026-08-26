@@ -1,0 +1,16 @@
+---
+description: Enforce MFE boundaries, contracts, and federation surface
+globs: apps/**/*.{ts,tsx},packages/**/*.{ts,tsx}
+alwaysApply: true
+---
+
+- Keep one public Module Federation expose: `./Mfe`.
+- Remote roots accept `{ data }` only and call `assertMfeDataEnvelope`.
+- Import `@medmate/ui/styles.css` only from `src/entrypoints/remote.tsx` and `standalone.tsx`.
+- Do not add per-remote CSS files; style with Tailwind utilities and `@medmate/ui`.
+- Do not import `@medmate/host-kit` from remotes.
+- Do not import remotes from shared packages.
+- Domain layouts belong inside the remote; global chrome stays in MED0002.
+- App `package.json` files declare only `workspace:*` dependencies.
+- Unit tests live in `__tests__`. Playwright lives in `apps/<mfe>/e2e/`.
+- UI components live in `src/ui`, not under `src/features`.

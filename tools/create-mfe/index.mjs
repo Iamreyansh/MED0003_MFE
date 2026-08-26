@@ -28,7 +28,7 @@ if (catalog.mfes.some((m) => m.name === name)) {
 const port = nextPort(name, catalog);
 const federationName = toFederationName(name);
 const packageName = `@medmate/${name}`;
-const packagePath = `packages/components/${name}`;
+const packagePath = `apps/${name}`;
 const domain = `${name}.mfe.nammamedmate.com`;
 const targetDir = path.join(repoRoot, packagePath);
 
@@ -90,13 +90,12 @@ function walk(dir) {
 
 walk(targetDir);
 
-// Rename template files that embed tokens in their names.
+// Rename template files and directories that embed tokens in their names.
 function renameTokenFiles(dir) {
   for (const entryName of fs.readdirSync(dir)) {
     const full = path.join(dir, entryName);
     if (fs.statSync(full).isDirectory()) {
       renameTokenFiles(full);
-      continue;
     }
     let nextName = entryName;
     for (const [token, value] of Object.entries(replacements)) {
@@ -138,7 +137,7 @@ fs.writeFileSync(
     `2. Add a \`REMOTE_REGISTRY\` entry: name \`${federationName}\`, module \`./Mfe\`, route \`/${name}\`.`,
     '3. Add a thin page adapter that builds an `MfeDataEnvelope` and mounts `RemoteLoader`.',
     '4. Wire the route/nav from the registry (do not hardcode strings).',
-    '5. Add or extend Playwright coverage for the new route.',
+    `5. Keep Playwright coverage in \`apps/${name}/e2e\` and extend the host suite in MED0002.`,
     '',
   ].join('\n'),
 );

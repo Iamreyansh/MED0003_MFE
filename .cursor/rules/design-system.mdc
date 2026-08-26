@@ -1,0 +1,11 @@
+---
+description: Use the shared design system and accessibility defaults
+globs: apps/**/*.{ts,tsx},packages/ui/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+- Prefer `@medmate/ui` primitives, layout, and feedback before custom markup.
+- Style with Tailwind utilities mapped to `@theme` tokens in `@medmate/ui/styles.css`.
+- Do not add `.css` files in remotes or inline presentation `style`.
+- Keep copy in feature constants. Honor reduced motion and visible focus.
+- Follow `docs/design-system/README.md`.

@@ -7,35 +7,22 @@
     "dev": "vite --port __PORT__ --strictPort",
     "build": "tsc -p tsconfig.app.json --noEmit && vite build",
     "preview": "vite preview --port __PORT__ --strictPort",
-    "lint": "eslint . --max-warnings=0 --ignore-pattern dist --ignore-pattern coverage",
-    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern coverage",
+    "lint": "eslint . --max-warnings=0 --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
+    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts"
   },
   "dependencies": {
     "@medmate/contracts": "workspace:*",
     "@medmate/mfe-kit": "workspace:*",
-    "@medmate/ui": "workspace:*",
-    "@reduxjs/toolkit": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-redux": "catalog:"
+    "@medmate/ui": "workspace:*"
   },
   "devDependencies": {
+    "@medmate/playwright-config": "workspace:*",
     "@medmate/test-utils": "workspace:*",
-    "@module-federation/vite": "catalog:",
-    "@testing-library/dom": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/react": "catalog:",
-    "@testing-library/user-event": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:",
-    "@vitest/coverage-v8": "catalog:",
-    "jsdom": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "@medmate/vite-config": "workspace:*",
+    "@medmate/vitest-config": "workspace:*"
   }
 }

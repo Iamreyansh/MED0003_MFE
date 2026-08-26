@@ -18,5 +18,10 @@ crash.log
 .vscode/*
 !.vscode/extensions.json
 .mf
+test-results
+playwright-report
+blob-report
+**/e2e/.results
+apps/*/index.html
 
 *.tsbuildinfo

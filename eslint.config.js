@@ -16,6 +16,7 @@ export default tseslint.config(
       '**/.turbo/**',
       '**/infra/**',
       '**/*.config.*',
+      '**/e2e/.results/**',
       'tools/**/templates/**',
     ],
   },
@@ -72,14 +73,14 @@ export default tseslint.config(
     },
   },
   {
-    files: ['packages/shared/**/*.{ts,tsx}'],
+    files: ['packages/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
             {
-              group: ['@medmate/todo', '**/packages/components/**'],
+              group: ['@medmate/todo', '**/apps/**'],
               message:
                 'Shared packages must not depend on feature remotes. Keep feature types/helpers in the remote package.',
             },
@@ -89,7 +90,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['packages/components/**/*.{ts,tsx}'],
+    files: ['apps/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',

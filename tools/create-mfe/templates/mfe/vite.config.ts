@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createMfeViteConfig } from '../../../config/vite/mfe';
+import { createMfeViteConfig } from '@medmate/vite-config';
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 

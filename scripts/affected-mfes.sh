@@ -16,7 +16,7 @@ fi
 
 CHANGED="$(git diff --name-only "${BASE_REF}...HEAD" || true)"
 SHARED_HIT=0
-if echo "${CHANGED}" | grep -E '^(packages/shared/|config/|scripts/|\.github/workflows/|pnpm-lock\.yaml|package\.json|turbo\.json)' >/dev/null; then
+if echo "${CHANGED}" | grep -E '^(packages/|config/|scripts/|\.github/workflows/|pnpm-lock\.yaml|package\.json|turbo\.json|pnpm-workspace\.yaml)' >/dev/null; then
   SHARED_HIT=1
 fi
 
@@ -33,7 +33,7 @@ while IFS= read -r row; do
 done < <(jq -c '.mfes[]' "${CATALOG}")
 
 if [[ "${INCLUDE}" == "[]" ]]; then
-  # Force todo on empty matrix for bootstrap safety when catalog itself changed.
+  # Force catalog remotes when the catalog itself changed.
   if echo "${CHANGED}" | grep -E '^config/mfes\.json$' >/dev/null; then
     INCLUDE="$(jq -c '[.mfes[] | {name, package, path, domain}]' "${CATALOG}")"
   fi

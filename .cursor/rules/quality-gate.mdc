@@ -1,0 +1,13 @@
+---
+description: Run quality gates after completing a coding task
+alwaysApply: true
+---
+
+After finishing implementation, verify before stopping:
+
+1. `pnpm validate:mfes` — catalog, workspace-only app deps, no app CSS/`index.html`, UI outside `features/`, Playwright under `e2e/`.
+2. `pnpm format:check` and `pnpm lint` for every touched package.
+3. Unit tests at **100%** coverage (`pnpm test:coverage`). Tests live in `__tests__` folders.
+4. Remote UI changes also have Playwright specs in `apps/<mfe>/e2e/` (`pnpm test:e2e`).
+5. Remotes emit to repo-root `dist/<name>/`. Do not add per-app `node_modules` deps or `.css` files.
+6. UI belongs in `src/ui` or `@medmate/ui`, never `src/features/**/ui`.

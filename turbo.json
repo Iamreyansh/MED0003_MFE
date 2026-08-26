@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", "../../dist/**"]
     },
     "lint": {},
     "lint:fix": {},
@@ -11,6 +11,9 @@
     "test": {},
     "test:coverage": {
       "outputs": ["coverage/**"]
+    },
+    "test:e2e": {
+      "cache": false
     },
     "dev": {
       "cache": false,

@@ -2,21 +2,18 @@
 
 - Domain: `https://__DOMAIN__`
 - Standalone: `pnpm --filter __PACKAGE__ dev`
-- Federated expose: `./Mfe` via package-root `index.tsx`
+- Federated expose: `./Mfe` via `src/entrypoints/remote.tsx`
+- Playwright: `apps/__NAME__/e2e`
 
 ## Layout
 
 ```
-bootstrap.tsx
-index.tsx
 src/
-  components/ + __tests__/
-  hooks/ + __tests__/
-  constants/ + __tests__/
-  services/ + __tests__/
-  store/ + __tests__/
-  utils/ + __tests__/
-  types/
-  styles/
-  test/
+  entrypoints/          # federated remote + standalone harness
+  app/                  # contract validation + providers
+  layouts/              # domain layout only
+  features/__NAME__/    # api, model, lib (no UI)
+  ui/                   # presentational components
+  contract.ts
+e2e/                    # Playwright config, specs, mocks
 ```

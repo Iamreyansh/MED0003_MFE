@@ -1,14 +1,15 @@
 {
   "files": [],
   "references": [
-    { "path": "./packages/shared/contracts" },
-    { "path": "./packages/shared/ui" },
-    { "path": "./packages/shared/test-utils" },
-    { "path": "./packages/shared/mfe-kit" },
-    { "path": "./packages/shared/federation-config" },
-    { "path": "./packages/shared/host-kit" },
+    { "path": "./packages/contracts" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/test-utils" },
+    { "path": "./packages/mfe-kit" },
+    { "path": "./packages/federation-config" },
+    { "path": "./packages/host-kit" },
     { "path": "./packages/tooling/vite-config" },
     { "path": "./packages/tooling/vitest-config" },
-    { "path": "./packages/components/todo" }
+    { "path": "./packages/tooling/playwright-config" },
+    { "path": "./apps/todo" }
   ]
 }

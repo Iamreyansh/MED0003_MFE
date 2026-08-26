@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "description": "Shared Vitest configuration for MedMate packages",
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "publishConfig": {
     "access": "restricted",
@@ -29,15 +33,15 @@
     "lint:fix": "eslint src --fix",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node -e \"process.exit(0)\"",
-    "test:coverage": "node -e \"process.exit(0)\""
+    "test:coverage": "node -e \"process.exit(0)\"",
+    "prepare": "pnpm run build"
   },
-  "peerDependencies": {
-    "@vitejs/plugin-react": "^4.6.0",
-    "vitest": "^3.2.4"
+  "dependencies": {
+    "@testing-library/jest-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "vitest": "catalog:"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

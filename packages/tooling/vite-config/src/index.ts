@@ -3,3 +3,4 @@ export {
   createHostViteConfig,
   type CreateHostViteConfigOptions,
 } from './host.js';
+export { medmateStandaloneHtmlPlugin, standaloneHtml } from './html.js';

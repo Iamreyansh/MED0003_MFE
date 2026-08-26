@@ -8,12 +8,12 @@ type MfeProps<T> = { data: Readonly<MfeDataEnvelope<T>> };
 
 Envelope fields:
 
-| Field             | Purpose                                           |
-| ----------------- | ------------------------------------------------- |
-| `contractVersion` | Semver gate (`1.0.0`)                             |
-| `context`         | hostId, locale, pharmacyId, userId, permissions   |
-| `feature`         | MFE-specific payload (initial state, callbacks)   |
-| `capabilities`    | optional host-owned navigate/api/events/telemetry |
+| Field             | Purpose                                                                                                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contractVersion` | Semver gate (`1.0.0`)                                                                                                                                                        |
+| `context`         | hostId, locale, pharmacyId, userId, permissions                                                                                                                              |
+| `feature`         | MFE-specific payload (initial state, callbacks)                                                                                                                              |
+| `capabilities`    | optional host-owned navigate/api/events/telemetry. `api.request` maps Core envelopes to `{ ok, status, data, code? }`; pass snake_case bodies and optional `idempotencyKey`. |
 
 ## Rules
 

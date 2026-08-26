@@ -11,6 +11,8 @@ medmate/
 ```
 
 Pharmacy Portal depends on shared packages via `file:../MED0003_MFE/packages/...`.
+After this layout migration, update those `file:` paths if they still point at
+`packages/shared/*`. Package names (`@medmate/*`) are unchanged.
 
 ## Quick start
 
@@ -28,13 +30,14 @@ pnpm run dev:with-host
 
 ## Quality commands
 
-| Command                        | Purpose                                                  |
-| ------------------------------ | -------------------------------------------------------- |
-| `pnpm test`                    | Unit tests (pre-push)                                    |
-| `pnpm test:coverage`           | Unit tests + **100%** coverage (CI)                      |
-| `pnpm lint` / `pnpm typecheck` | ESLint / TypeScript                                      |
-| `pnpm validate:mfes`           | Catalog uniqueness                                       |
-| `pnpm quality`                 | Full gate (format + lint + typecheck + coverage + build) |
+| Command                        | Purpose                                                        |
+| ------------------------------ | -------------------------------------------------------------- |
+| `pnpm test`                    | Unit tests (pre-push)                                          |
+| `pnpm test:coverage`           | Unit tests + **100%** coverage (CI)                            |
+| `pnpm test:e2e`                | Playwright in `apps/<mfe>/e2e`                                 |
+| `pnpm lint` / `pnpm typecheck` | ESLint / TypeScript                                            |
+| `pnpm validate:mfes`           | Catalog + architecture boundaries                              |
+| `pnpm quality`                 | Full gate (format + lint + typecheck + coverage + e2e + build) |
 
 Coverage thresholds stay at **100%** — do not lower them.
 
@@ -50,4 +53,5 @@ See [docs/development/create-mfe.md](docs/development/create-mfe.md).
 
 - [Local development](docs/development/local-development.md)
 - [Architecture](docs/architecture/overview.md)
+- [Design system](docs/design-system/README.md)
 - [Deploy](docs/deploy/deploy.md)

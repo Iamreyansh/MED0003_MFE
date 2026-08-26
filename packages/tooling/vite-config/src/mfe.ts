@@ -1,8 +1,10 @@
 import path from 'node:path';
 import { MFE_SHARED } from '@medmate/federation-config';
 import { federation } from '@module-federation/vite';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type UserConfig } from 'vite';
+import { medmateStandaloneHtmlPlugin } from './html.js';
 
 export type CreateMfeViteConfigOptions = {
   /** Absolute path to the MFE package root (directory containing vite.config.ts). */
@@ -12,7 +14,7 @@ export type CreateMfeViteConfigOptions = {
   /** Dev/preview port. */
   port: number;
   /**
-   * Federation expose map. Defaults to package-root `index.tsx` as `./Mfe`.
+   * Federation expose map. Defaults to `src/entrypoints/remote.tsx` as `./Mfe`.
    * Prefer leaving this default so every MFE stays consistent.
    */
   exposes?: Record<string, string>;
@@ -31,7 +33,7 @@ export function createMfeViteConfig(
     rootDir,
     name,
     port,
-    exposes = { './Mfe': './index.tsx' },
+    exposes = { './Mfe': './src/entrypoints/remote.tsx' },
     override = {},
   } = options;
 
@@ -44,10 +46,15 @@ export function createMfeViteConfig(
     ...rest
   } = override;
 
+  const repoRoot = path.resolve(rootDir, '../..');
+  const outDir = path.resolve(repoRoot, 'dist', name);
+
   return defineConfig({
     ...rest,
     plugins: [
       react(),
+      tailwindcss(),
+      medmateStandaloneHtmlPlugin(name, rootDir),
       federation({
         name,
         filename: 'remoteEntry.js',
@@ -68,20 +75,29 @@ export function createMfeViteConfig(
     build: {
       target: 'chrome89',
       cssCodeSplit: false,
+      outDir,
+      emptyOutDir: true,
       ...overrideBuild,
     },
     server: {
+      ...overrideServer,
       port,
       strictPort: true,
       origin: `http://localhost:${port}`,
       cors: true,
-      ...overrideServer,
+      fs: {
+        allow: [repoRoot],
+        ...overrideServer?.fs,
+      },
     },
     preview: {
       port,
       strictPort: true,
       cors: true,
       ...overridePreview,
+    },
+    optimizeDeps: {
+      entries: ['src/entrypoints/standalone.tsx', 'src/entrypoints/remote.tsx'],
     },
   });
 }

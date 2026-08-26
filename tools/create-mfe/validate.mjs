@@ -1,12 +1,8 @@
 #!/usr/bin/env node
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { loadCatalog, validateCatalog } from './lib.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const catalogPath = path.resolve(__dirname, '../../config/mfes.json');
-const catalog = loadCatalog(catalogPath);
-const errors = validateCatalog(catalog);
+const catalog = loadCatalog();
+const errors = validateCatalog(catalog, { checkFilesystem: true });
 
 if (errors.length > 0) {
   console.error('MFE catalog validation failed:');

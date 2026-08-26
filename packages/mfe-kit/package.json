@@ -1,0 +1,31 @@
+{
+  "name": "@medmate/mfe-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./bootstrap": "./src/bootstrap.tsx",
+    "./store": "./src/store/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --max-warnings=0",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-redux": "catalog:"
+  },
+  "devDependencies": {
+    "@medmate/vitest-config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

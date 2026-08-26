@@ -62,6 +62,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
       - run: pnpm run test:coverage
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm run test:e2e
 
   build:
     name: build
@@ -104,10 +106,10 @@ jobs:
         run: |
           set -euo pipefail
           while IFS= read -r row; do
-            path="$(echo "${row}" | jq -r '.path')"
-            test -f "${path}/dist/mf-manifest.json"
-            test -f "${path}/dist/remoteEntry.js"
-            echo "Verified federation artefacts for ${path}"
+            name="$(echo "${row}" | jq -r '.name')"
+            test -f "dist/${name}/mf-manifest.json"
+            test -f "dist/${name}/remoteEntry.js"
+            echo "Verified federation artefacts for ${name}"
           done < <(jq -c '.mfes[]' config/mfes.json)
       - name: Upload MFE dist artefacts to S3
         run: |
@@ -152,7 +154,7 @@ jobs:
       - name: Download MFE dist artefacts from S3
         run: |
           chmod +x scripts/artifact-pull.sh
-          ./scripts/artifact-pull.sh "${{ matrix.path }}"
+          ./scripts/artifact-pull.sh "${{ matrix.name }}"
 
       - name: Resolve deploy targets
         id: targets
@@ -180,7 +182,7 @@ jobs:
           chmod +x scripts/deploy-mfe.sh
           ./scripts/deploy-mfe.sh \
             "${{ matrix.name }}" \
-            "${{ matrix.path }}/dist" \
+            "dist/${{ matrix.name }}" \
             "${{ steps.targets.outputs.bucket }}" \
             "${{ steps.targets.outputs.distribution_id }}" \
             "${GITHUB_SHA}"

@@ -17,10 +17,11 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
+    "test:e2e": "turbo run test:e2e --filter=./apps/*",
     "test:watch": "pnpm --filter @medmate/todo exec vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "pnpm run validate:mfes && pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test:coverage && pnpm run build",
+    "quality": "pnpm run validate:mfes && pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test:coverage && pnpm run test:e2e && pnpm run build",
     "create:mfe": "node tools/create-mfe/index.mjs",
     "validate:mfes": "node tools/create-mfe/validate.mjs",
     "affected": "bash scripts/affected-mfes.sh",
@@ -45,15 +46,28 @@
       "prettier --write"
     ]
   },
+  "dependencies": {
+    "@reduxjs/toolkit": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-redux": "catalog:"
+  },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.30.1",
     "@module-federation/vite": "catalog:",
+    "@playwright/test": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
     "@types/node": "^26.1.1",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
     "eslint": "^9.30.1",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-import": "^2.32.0",
@@ -62,8 +76,10 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "jsdom": "catalog:",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
+    "tailwindcss": "catalog:",
     "turbo": "^2.5.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
@@ -76,7 +92,8 @@
   "packageManager": "pnpm@10.30.1",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "playwright"
     ]
   }
 }
