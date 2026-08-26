@@ -1,0 +1,29 @@
+{
+  "name": "@medmate/auth",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p tsconfig.app.json --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings=0 --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
+    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern coverage --ignore-pattern e2e/.results",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts"
+  },
+  "dependencies": {
+    "@medmate/auth-contract": "workspace:*",
+    "@medmate/contracts": "workspace:*",
+    "@medmate/mfe-kit": "workspace:*",
+    "@medmate/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@medmate/playwright-config": "workspace:*",
+    "@medmate/test-utils": "workspace:*",
+    "@medmate/vite-config": "workspace:*",
+    "@medmate/vitest-config": "workspace:*"
+  }
+}

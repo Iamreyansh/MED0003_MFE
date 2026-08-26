@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react';
+import { cn } from '../lib/cn';
 
 export type StatusTone = 'neutral' | 'info' | 'error';
 
@@ -16,13 +17,14 @@ const TONE = {
 export function StatusMessage({
   children,
   tone = 'neutral',
-  className = '',
+  className,
   ...props
 }: StatusMessageProps) {
   return (
     <p
       role="status"
-      className={`m-0 font-mm ${TONE[tone]} ${className}`.trim()}
+      data-slot="status-message"
+      className={cn('m-0 font-mm', TONE[tone], className)}
       {...props}
     >
       {children}

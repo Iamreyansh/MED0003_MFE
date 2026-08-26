@@ -1,13 +1,10 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Flex, type FlexProps } from '../elements/Flex';
 
-export type StackProps = HTMLAttributes<HTMLDivElement> & {
+export type StackProps = Omit<FlexProps, 'direction'> & {
   children: ReactNode;
 };
 
-export function Stack({ children, className = '', ...props }: StackProps) {
-  return (
-    <div className={`flex flex-col gap-3 ${className}`.trim()} {...props}>
-      {children}
-    </div>
-  );
+export function Stack({ gap = '3', ...props }: StackProps) {
+  return <Flex direction="column" gap={gap} data-slot="stack" {...props} />;
 }

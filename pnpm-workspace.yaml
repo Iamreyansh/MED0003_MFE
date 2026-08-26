@@ -25,3 +25,14 @@ catalog:
   tailwindcss: ^4.1.12
   '@tailwindcss/vite': ^4.1.12
   '@playwright/test': ^1.55.0
+  formik: ^2.4.6
+  yup: ^1.7.1
+  gsap: ^3.13.0
+  '@gsap/react': ^2.1.2
+  clsx: ^2.1.1
+  tailwind-merge: ^3.4.0
+  class-variance-authority: ^0.7.1
+  '@radix-ui/react-slot': ^1.2.3
+  '@radix-ui/react-dialog': ^1.1.15
+  '@radix-ui/react-label': ^2.1.7
+  lucide-react: ^0.542.0

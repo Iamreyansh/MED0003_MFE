@@ -20,6 +20,16 @@
       "port": 5101,
       "domain": "todo.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "auth",
+      "package": "@medmate/auth",
+      "path": "apps/auth",
+      "federationName": "auth",
+      "expose": "./Mfe",
+      "port": 5102,
+      "domain": "auth.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

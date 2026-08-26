@@ -17,6 +17,15 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
+  "dependencies": {
+    "@radix-ui/react-dialog": "catalog:",
+    "@radix-ui/react-label": "catalog:",
+    "@radix-ui/react-slot": "catalog:",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "lucide-react": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
   "peerDependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"

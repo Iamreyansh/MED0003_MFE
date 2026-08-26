@@ -6,19 +6,15 @@
   "description": "NammaMedMate React micro-frontend monorepo",
   "scripts": {
     "dev": "turbo run dev --filter=@medmate/todo",
-    "dev:todo": "turbo run dev --filter=@medmate/todo",
     "dev:with-host": "bash scripts/dev-with-host.sh",
     "dev:all": "turbo run dev --parallel",
     "build": "turbo run build",
-    "build:todo": "turbo run build --filter=@medmate/todo",
-    "preview:todo": "pnpm --filter @medmate/todo preview",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "test:e2e": "turbo run test:e2e --filter=./apps/*",
-    "test:watch": "pnpm --filter @medmate/todo exec vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "quality": "pnpm run validate:mfes && pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test:coverage && pnpm run test:e2e && pnpm run build",
@@ -50,9 +46,13 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "catalog:",
+    "formik": "catalog:",
+    "gsap": "catalog:",
+    "@gsap/react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-redux": "catalog:"
+    "react-redux": "catalog:",
+    "yup": "catalog:"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",

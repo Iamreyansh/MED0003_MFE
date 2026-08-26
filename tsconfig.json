@@ -1,15 +1,41 @@
 {
   "files": [],
   "references": [
-    { "path": "./packages/contracts" },
-    { "path": "./packages/ui" },
-    { "path": "./packages/test-utils" },
-    { "path": "./packages/mfe-kit" },
-    { "path": "./packages/federation-config" },
-    { "path": "./packages/host-kit" },
-    { "path": "./packages/tooling/vite-config" },
-    { "path": "./packages/tooling/vitest-config" },
-    { "path": "./packages/tooling/playwright-config" },
-    { "path": "./apps/todo" }
+    {
+      "path": "./packages/contracts"
+    },
+    {
+      "path": "./packages/auth-contract"
+    },
+    {
+      "path": "./packages/ui"
+    },
+    {
+      "path": "./packages/test-utils"
+    },
+    {
+      "path": "./packages/mfe-kit"
+    },
+    {
+      "path": "./packages/federation-config"
+    },
+    {
+      "path": "./packages/host-kit"
+    },
+    {
+      "path": "./packages/tooling/vite-config"
+    },
+    {
+      "path": "./packages/tooling/vitest-config"
+    },
+    {
+      "path": "./packages/tooling/playwright-config"
+    },
+    {
+      "path": "./apps/todo"
+    },
+    {
+      "path": "./apps/auth"
+    }
   ]
 }
