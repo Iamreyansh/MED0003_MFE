@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@module-federation/vite':
-      specifier: ^1.7.1
-      version: 1.20.5
+      specifier: ^1.20.7
+      version: 1.20.7
     '@playwright/test':
       specifier: ^1.55.0
       version: 1.62.1
@@ -89,7 +89,7 @@ importers:
         version: 9.39.5
       '@module-federation/vite':
         specifier: 'catalog:'
-        version: 1.20.5(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+        version: 1.20.7(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
       '@playwright/test':
         specifier: 'catalog:'
         version: 1.62.1
@@ -292,7 +292,7 @@ importers:
         version: link:../../federation-config
       '@module-federation/vite':
         specifier: 'catalog:'
-        version: 1.20.5(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+        version: 1.20.7(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.3.3(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
@@ -809,8 +809,8 @@ packages:
   '@module-federation/third-party-dts-extractor@2.8.2':
     resolution: {integrity: sha512-Xf3iZ4iDi972XMOMbmUm/c5Vwwb6cTsU+Jpoz96lUom6Yps9FQX48elIdhgcQsL7/K64PqdOONsrlZVo8zphKA==}
 
-  '@module-federation/vite@1.20.5':
-    resolution: {integrity: sha512-RUonpW3aYgmVR9DCVdUzgHBgGA2BdEy67DMgobCtOS46/G+T5Xgm4WQvFOE1f3IDIRb15TZo45rsRwrAqn1csg==}
+  '@module-federation/vite@1.20.7':
+    resolution: {integrity: sha512-Mto7P+4k+vXZYuQ6AjDMhVjp5uo/u0G+gLsJLVw6vkibvG2kcwvTmVLoHUBhQ2tj01onohajAxIs9X7H9G4FSg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -3723,7 +3723,7 @@ snapshots:
 
   '@module-federation/third-party-dts-extractor@2.8.2': {}
 
-  '@module-federation/vite@1.20.5(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))':
+  '@module-federation/vite@1.20.7(typescript@5.8.3)(vite@6.4.3(@types/node@26.2.0)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))':
     dependencies:
       '@module-federation/dts-plugin': 2.8.2(typescript@5.8.3)
       '@module-federation/runtime': 2.8.2
