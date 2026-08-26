@@ -6,6 +6,8 @@ pnpm-lock.yaml
 *.tfstate
 *.tfstate.*
 .terraform
+**/.terraform.lock.hcl
+infra/.plugin-cache
 .mf
 apps/*/index.html
 **/e2e/.results

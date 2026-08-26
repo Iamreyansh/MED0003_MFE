@@ -9,6 +9,13 @@ export const catalogPath = path.join(repoRoot, 'config/mfes.json');
 
 /**
  * @typedef {{
+ *   name: 'staging' | 'production';
+ *   domainSuffix: string;
+ * }} CatalogEnvironment
+ */
+
+/**
+ * @typedef {{
  *   name: string;
  *   package: string;
  *   path: string;
@@ -21,10 +28,65 @@ export const catalogPath = path.join(repoRoot, 'config/mfes.json');
  */
 
 /**
+ * @typedef {{
+ *   environments?: {
+ *     staging?: CatalogEnvironment;
+ *     production?: CatalogEnvironment;
+ *   };
+ *   mfes: MfeEntry[];
+ * }} MfeCatalog
+ */
+
+/**
  * @param {string} [catalogFile]
+ * @returns {MfeCatalog}
  */
 export function loadCatalog(catalogFile = catalogPath) {
   return JSON.parse(fs.readFileSync(catalogFile, 'utf8'));
+}
+
+/**
+ * @param {MfeCatalog} catalog
+ * @param {'staging' | 'production'} environment
+ */
+export function environmentSuffix(catalog, environment) {
+  const suffix = catalog.environments?.[environment]?.domainSuffix;
+  if (!suffix) {
+    throw new Error(
+      `Catalog is missing environments.${environment}.domainSuffix`,
+    );
+  }
+  return suffix;
+}
+
+/**
+ * @param {MfeEntry} mfe
+ * @param {MfeCatalog} catalog
+ * @param {'staging' | 'production'} environment
+ */
+export function environmentDomain(mfe, catalog, environment) {
+  if (environment === 'production') return mfe.domain;
+  return `${mfe.name}.${environmentSuffix(catalog, environment)}`;
+}
+
+/**
+ * @param {MfeEntry[]} mfes
+ * @param {MfeCatalog} catalog
+ */
+export function toDeployMatrix(mfes, catalog) {
+  return {
+    include: mfes.map((mfe) => ({
+      name: mfe.name,
+      package: mfe.package,
+      path: mfe.path,
+      federationName: mfe.federationName,
+      port: mfe.port,
+      owner: mfe.owner,
+      domain: mfe.domain,
+      stagingDomain: environmentDomain(mfe, catalog, 'staging'),
+      productionDomain: environmentDomain(mfe, catalog, 'production'),
+    })),
+  };
 }
 
 /**
@@ -64,7 +126,78 @@ function isWorkspaceSpec(value) {
 }
 
 /**
- * @param {{ mfes: MfeEntry[] }} catalog
+ * @param {string} source
+ * @param {RegExp} pattern
+ */
+function readConfigValue(source, pattern) {
+  const match = pattern.exec(source);
+  return match?.[1] ?? null;
+}
+
+/**
+ * @param {MfeEntry} mfe
+ * @param {string} abs
+ * @param {string[]} errors
+ */
+function validateAppConfigDrift(mfe, abs, errors) {
+  const vitePath = path.join(abs, 'vite.config.ts');
+  const playwrightPath = path.join(abs, 'e2e/playwright.config.ts');
+  const pkg = readPackageJson(mfe.path);
+
+  if (fs.existsSync(vitePath)) {
+    const vite = fs.readFileSync(vitePath, 'utf8');
+    if (!vite.includes('createMfeViteConfig')) {
+      errors.push(`${mfe.name} vite.config.ts must use createMfeViteConfig`);
+    }
+    const name = readConfigValue(vite, /\bname:\s*['"]([^'"]+)['"]/);
+    const port = readConfigValue(vite, /\bport:\s*(\d+)/);
+    if (name && name !== mfe.federationName) {
+      errors.push(
+        `${mfe.name} vite.config.ts name ${name} != catalog federationName ${mfe.federationName}`,
+      );
+    }
+    if (port && Number(port) !== mfe.port) {
+      errors.push(
+        `${mfe.name} vite.config.ts port ${port} != catalog port ${mfe.port}`,
+      );
+    }
+  }
+
+  if (fs.existsSync(playwrightPath)) {
+    const playwright = fs.readFileSync(playwrightPath, 'utf8');
+    if (!playwright.includes('createMfePlaywrightConfig')) {
+      errors.push(
+        `${mfe.name} e2e/playwright.config.ts must use createMfePlaywrightConfig`,
+      );
+    }
+    const name = readConfigValue(playwright, /\bname:\s*['"]([^'"]+)['"]/);
+    const port = readConfigValue(playwright, /\bport:\s*(\d+)/);
+    if (name && name !== mfe.name) {
+      errors.push(
+        `${mfe.name} Playwright name ${name} != catalog name ${mfe.name}`,
+      );
+    }
+    if (port && Number(port) !== mfe.port) {
+      errors.push(
+        `${mfe.name} Playwright port ${port} != catalog port ${mfe.port}`,
+      );
+    }
+  }
+
+  if (pkg?.scripts) {
+    for (const [scriptName, command] of Object.entries(pkg.scripts)) {
+      const portMatch = /--port\s+(\d+)/.exec(String(command));
+      if (portMatch && Number(portMatch[1]) !== mfe.port) {
+        errors.push(
+          `${mfe.package} script ${scriptName} port ${portMatch[1]} != catalog port ${mfe.port}`,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * @param {MfeCatalog} catalog
  * @param {{ checkFilesystem?: boolean }} [options]
  */
 export function validateCatalog(catalog, options = {}) {
@@ -77,6 +210,18 @@ export function validateCatalog(catalog, options = {}) {
   const domains = new Set();
   const federationNames = new Set();
   const paths = new Set();
+
+  const productionSuffix = catalog.environments?.production?.domainSuffix;
+  const stagingSuffix = catalog.environments?.staging?.domainSuffix;
+  if (!productionSuffix) {
+    errors.push('Catalog must define environments.production.domainSuffix');
+  }
+  if (!stagingSuffix) {
+    errors.push('Catalog must define environments.staging.domainSuffix');
+  }
+  if (productionSuffix && stagingSuffix && productionSuffix === stagingSuffix) {
+    errors.push('Staging and production domain suffixes must differ');
+  }
 
   for (const mfe of catalog.mfes ?? []) {
     if (!/^[a-z][a-z0-9-]*$/.test(mfe.name)) {
@@ -106,8 +251,10 @@ export function validateCatalog(catalog, options = {}) {
     federationNames.add(mfe.federationName);
     paths.add(mfe.path);
 
-    if (!mfe.domain?.endsWith('.mfe.nammamedmate.com')) {
-      errors.push(`Domain must end with .mfe.nammamedmate.com: ${mfe.domain}`);
+    if (productionSuffix && mfe.domain !== `${mfe.name}.${productionSuffix}`) {
+      errors.push(
+        `Production domain for ${mfe.name} must be ${mfe.name}.${productionSuffix}`,
+      );
     }
     if (mfe.port < 5100 || mfe.port > 5999) {
       errors.push(`Port out of range for ${mfe.name}: ${mfe.port}`);
@@ -155,6 +302,7 @@ export function validateCatalog(catalog, options = {}) {
       'src/ui',
       'e2e/playwright.config.ts',
       'e2e/specs',
+      'vite.config.ts',
     ];
     for (const relative of required) {
       if (!fs.existsSync(path.join(abs, relative))) {
@@ -168,6 +316,8 @@ export function validateCatalog(catalog, options = {}) {
         errors.push(`${mfe.name} must not include ${relative}`);
       }
     }
+
+    validateAppConfigDrift(mfe, abs, errors);
 
     const files = walkFiles(abs);
     for (const file of files) {
@@ -210,7 +360,7 @@ export function validateCatalog(catalog, options = {}) {
 
 /**
  * @param {string} name
- * @param {{ mfes: MfeEntry[] }} catalog
+ * @param {MfeCatalog} catalog
  */
 export function nextPort(name, catalog) {
   const used = new Set(catalog.mfes.map((m) => m.port));

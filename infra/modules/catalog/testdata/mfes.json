@@ -1,0 +1,24 @@
+{
+  "environments": {
+    "staging": {
+      "name": "staging",
+      "domainSuffix": "staging.mfe.nammamedmate.com"
+    },
+    "production": {
+      "name": "production",
+      "domainSuffix": "mfe.nammamedmate.com"
+    }
+  },
+  "mfes": [
+    {
+      "name": "todo",
+      "package": "@medmate/todo",
+      "path": "apps/todo",
+      "federationName": "todo",
+      "expose": "./Mfe",
+      "port": 5101,
+      "domain": "todo.mfe.nammamedmate.com",
+      "owner": "platform"
+    }
+  ]
+}

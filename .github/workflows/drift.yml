@@ -1,0 +1,65 @@
+name: Terraform drift
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: terraform-drift
+  cancel-in-progress: false
+
+env:
+  TF_VERSION: '1.10.5'
+  AWS_REGION: ap-south-1
+  ARTIFACT_BUCKET: ${{ vars.ARTIFACT_BUCKET }}
+
+jobs:
+  drift:
+    name: drift-${{ matrix.stack }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - stack: shared
+          - stack: staging
+          - stack: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.0.2
+        with:
+          role-to-assume: ${{ secrets.AWS_TF_PLAN_ROLE_ARN || secrets.AWS_TF_ROLE_ARN }}
+          role-session-name: terraform-drift-${{ matrix.stack }}-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+      - name: Detect ${{ matrix.stack }} drift
+        run: |
+          set -euo pipefail
+          ./scripts/tf.sh plan "${{ matrix.stack }}"
+          ./scripts/tf.sh plan-push "${{ matrix.stack }}"
+          code="$(tr -d '[:space:]' < "infra/${{ matrix.stack }}/tfplan.exitcode")"
+          if [ "${code}" = "skipped" ]; then
+            echo "Shared state is not applied yet; skipping ${{ matrix.stack }} drift check"
+            exit 0
+          fi
+          if [ "${code}" -eq 2 ]; then
+            echo "::error::Drift detected in ${{ matrix.stack }}. Do not auto-apply; open a reviewed plan/apply."
+            exit 1
+          fi
+          if [ "${code}" -ne 0 ]; then
+            echo "::error::Terraform plan failed for ${{ matrix.stack }}"
+            exit 1
+          fi
+          echo "No drift in ${{ matrix.stack }}"

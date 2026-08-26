@@ -38,6 +38,7 @@ pnpm run dev:with-host
 | `pnpm lint` / `pnpm typecheck` | ESLint / TypeScript                                            |
 | `pnpm validate:mfes`           | Catalog + architecture boundaries                              |
 | `pnpm quality`                 | Full gate (format + lint + typecheck + coverage + e2e + build) |
+| `pnpm tf:plan shared`          | Checksummed Terraform plan                                     |
 
 Coverage thresholds stay at **100%** — do not lower them.
 

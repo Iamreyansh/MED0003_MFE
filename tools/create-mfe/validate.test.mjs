@@ -6,7 +6,9 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
   catalogPath,
+  environmentDomain,
   nextPort,
+  toDeployMatrix,
   toFederationName,
   validateCatalog,
 } from './lib.mjs';
@@ -16,29 +18,43 @@ const templateDir = path.join(
   'templates/mfe',
 );
 
+const environments = {
+  staging: {
+    name: 'staging',
+    domainSuffix: 'staging.mfe.nammamedmate.com',
+  },
+  production: {
+    name: 'production',
+    domainSuffix: 'mfe.nammamedmate.com',
+  },
+};
+
+function catalogMfe(overrides = {}) {
+  return {
+    name: 'todo',
+    package: '@medmate/todo',
+    path: 'apps/todo',
+    federationName: 'todo',
+    expose: './Mfe',
+    port: 5101,
+    domain: 'todo.mfe.nammamedmate.com',
+    owner: 'platform',
+    ...overrides,
+  };
+}
+
 test('validateCatalog catches duplicates and invalid paths', () => {
   const errors = validateCatalog({
+    environments,
     mfes: [
-      {
-        name: 'todo',
-        package: '@medmate/todo',
+      catalogMfe({
         path: 'packages/components/todo',
-        federationName: 'todo',
         expose: './Widget',
-        port: 5101,
-        domain: 'todo.mfe.nammamedmate.com',
-        owner: 'platform',
-      },
-      {
-        name: 'todo',
-        package: '@medmate/todo',
+      }),
+      catalogMfe({
         path: 'packages/components/todo',
-        federationName: 'todo',
         expose: './Widget',
-        port: 5101,
-        domain: 'todo.mfe.nammamedmate.com',
-        owner: 'platform',
-      },
+      }),
     ],
   });
   assert.ok(errors.some((error) => error.includes('apps/')));
@@ -46,26 +62,56 @@ test('validateCatalog catches duplicates and invalid paths', () => {
   assert.ok(errors.some((error) => error.includes('Duplicate')));
 });
 
+test('validateCatalog requires environment suffixes and matching production domains', () => {
+  const missingEnv = validateCatalog({
+    mfes: [catalogMfe()],
+  });
+  assert.ok(
+    missingEnv.some((error) => error.includes('environments.production')),
+  );
+
+  const badDomain = validateCatalog({
+    environments,
+    mfes: [catalogMfe({ domain: 'todo.example.com' })],
+  });
+  assert.ok(badDomain.some((error) => error.includes('Production domain')));
+});
+
 test('nextPort skips used ports', () => {
   const port = nextPort('inventory', {
-    mfes: [
-      {
-        name: 'todo',
-        package: '@medmate/todo',
-        path: 'apps/todo',
-        federationName: 'todo',
-        expose: './Mfe',
-        port: 5101,
-        domain: 'todo.mfe.nammamedmate.com',
-        owner: 'platform',
-      },
-    ],
+    environments,
+    mfes: [catalogMfe()],
   });
   assert.equal(port, 5102);
 });
 
 test('toFederationName replaces dashes', () => {
   assert.equal(toFederationName('stock-alerts'), 'stock_alerts');
+});
+
+test('environmentDomain derives staging independently of production', () => {
+  const catalog = { environments, mfes: [catalogMfe()] };
+  assert.equal(
+    environmentDomain(catalog.mfes[0], catalog, 'staging'),
+    'todo.staging.mfe.nammamedmate.com',
+  );
+  assert.equal(
+    environmentDomain(catalog.mfes[0], catalog, 'production'),
+    'todo.mfe.nammamedmate.com',
+  );
+});
+
+test('toDeployMatrix carries both environment domains', () => {
+  const catalog = { environments, mfes: [catalogMfe()] };
+  const matrix = toDeployMatrix(catalog.mfes, catalog);
+  assert.deepEqual(
+    matrix.include[0].stagingDomain,
+    'todo.staging.mfe.nammamedmate.com',
+  );
+  assert.deepEqual(
+    matrix.include[0].productionDomain,
+    'todo.mfe.nammamedmate.com',
+  );
 });
 
 test('real catalog passes filesystem architecture checks', () => {
@@ -110,6 +156,7 @@ test('template ships the reference architecture without component CSS imports', 
 
   const vite = fs.readFileSync(path.join(tmp, 'vite.config.ts'), 'utf8');
   assert.ok(vite.includes('@medmate/vite-config'));
+  assert.equal(vite.includes('port:'), false);
   const vitest = fs.readFileSync(path.join(tmp, 'vitest.config.ts'), 'utf8');
   assert.ok(vitest.includes('@medmate/vitest-config'));
   assert.equal(vitest.includes('setupFiles'), false);

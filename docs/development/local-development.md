@@ -16,16 +16,15 @@ pnpm dev:todo
 
 ## Useful root scripts
 
-| Script                           | Purpose                                                       |
-| -------------------------------- | ------------------------------------------------------------- |
-| `pnpm quality`                   | validate + format + lint + typecheck + coverage + e2e + build |
-| `pnpm test:e2e`                  | Playwright suites under `apps/<mfe>/e2e`                      |
-| `pnpm create:mfe <name>`         | scaffold a remote                                             |
-| `pnpm affected`                  | print affected MFE deploy matrix                              |
-| `pnpm cache:pull` / `cache:push` | sync Turborepo cache with S3                                  |
-| `pnpm smoke:mfe <domain>`        | post-deploy smoke                                             |
-| `pnpm dev:with-host`             | start Todo + print Portal `.env` snippet                      |
-| `pnpm tf:plan` / `tf:apply`      | Terraform helpers                                             |
+| Script                      | Purpose                                                       |
+| --------------------------- | ------------------------------------------------------------- |
+| `pnpm quality`              | validate + format + lint + typecheck + coverage + e2e + build |
+| `pnpm test:e2e`             | Playwright suites under `apps/<mfe>/e2e`                      |
+| `pnpm create:mfe <name>`    | scaffold a remote                                             |
+| `pnpm affected`             | print affected MFE deploy matrix                              |
+| `pnpm smoke:mfe <domain>`   | post-deploy smoke                                             |
+| `pnpm dev:with-host`        | start Todo + print Portal `.env` snippet                      |
+| `pnpm tf:plan` / `tf:apply` | Terraform helpers                                             |
 
 ## Run with PharmacyPortal host
 

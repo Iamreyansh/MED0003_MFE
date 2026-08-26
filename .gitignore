@@ -8,11 +8,18 @@ coverage
 .env.*
 !.env.example
 .terraform
+**/.terraform.lock.hcl
+infra/.plugin-cache
 *.tfstate
 *.tfstate.*
 *.tfplan
 tfplan
 infra/tfplan
+infra/**/tfplan
+infra/**/tfplan.json
+infra/**/tfplan.sha256
+infra/**/tfplan.exitcode
+infra/**/outputs.json
 crash.log
 .idea
 .vscode/*
@@ -22,6 +29,7 @@ test-results
 playwright-report
 blob-report
 **/e2e/.results
+**/e2e/.report
 apps/*/index.html
 
 *.tsbuildinfo

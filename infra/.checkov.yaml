@@ -1,0 +1,16 @@
+# Checkov config for MED0003 Terraform stacks.
+compact: true
+framework:
+  - terraform
+quiet: true
+skip-check:
+  - CKV_AWS_18 # access logging is attached via a dedicated logs bucket
+  - CKV2_AWS_32 # CloudFront geo restriction is intentionally none
+  - CKV_AWS_26 # SNS topics are account-internal; CMK would add KMS grants to apply
+  - CKV_AWS_108 # Terraform plan/apply roles need read-across the account
+  - CKV_AWS_109 # Terraform apply role manages IAM for GitHub OIDC roles
+  - CKV_AWS_111 # Terraform apply role writes stack resources
+  - CKV_AWS_144 # Artifact bucket is single-region by design
+  - CKV_AWS_145 # SSE-S3 is required; CMK would couple KMS into every release
+  - CKV_AWS_356 # Plan/apply runner policies use wildcard resources
+  - CKV2_AWS_62 # Artifact bucket does not need EventBridge notifications

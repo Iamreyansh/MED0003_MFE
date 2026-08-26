@@ -6,6 +6,4 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default createMfeViteConfig({
   rootDir,
-  name: '__FEDERATION__',
-  port: __PORT__,
 });
