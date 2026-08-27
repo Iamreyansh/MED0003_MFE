@@ -7,6 +7,7 @@ import {
   defaultRemoteImporter,
   getFederationHost,
   toRemoteModuleId,
+  type RemoteModule,
 } from '../RemoteLoader';
 
 afterEach(() => {
@@ -106,6 +107,37 @@ describe('RemoteLoader', () => {
   it('shows missing UI when remoteUrl is empty', () => {
     render(<RemoteLoader remote="todo" module="./Mfe" remoteUrl={null} />);
     expect(screen.getByTestId('remote-missing')).toBeInTheDocument();
+  });
+
+  it('shows a spinner while the remote is loading', async () => {
+    let resolveLoad: (value: RemoteModule) => void = () => undefined;
+    const loadRemote = vi.fn(
+      () =>
+        new Promise<RemoteModule>((resolve) => {
+          resolveLoad = resolve;
+        }),
+    );
+
+    render(
+      <RemoteLoader
+        remote="todo"
+        module="./Mfe"
+        remoteUrl="http://localhost:5101/mf-manifest.json"
+        loadRemote={loadRemote}
+      />,
+    );
+
+    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+
+    resolveLoad({
+      default: function Todo() {
+        return <div data-testid="todo-mfe">ok</div>;
+      },
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('todo-mfe')).toBeInTheDocument();
+    });
   });
 
   it('loads a remote module when importer succeeds', async () => {

@@ -36,7 +36,7 @@ Prefer `@medmate/ui` before custom markup. Style with Tailwind utilities and
 - Layout: `Stack`, `Inline`, `PageSection`
 - Primitives: `Button`, `Input`, `Label`, `TextField`, `Card` (compound),
   `Dialog`, `Alert`, `Table`, `InputOTP`, `Badge`
-- Feedback: `StatusMessage`
+- Feedback: `StatusMessage`, `Spinner`
 - Utility: `cn`
 
 Place remote-specific UI in `src/ui/<screen>/`, never under `src/features`.

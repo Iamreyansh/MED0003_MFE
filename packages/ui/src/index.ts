@@ -80,6 +80,7 @@ export {
   type StatusMessageProps,
   type StatusTone,
 } from './feedback/StatusMessage';
+export { Spinner, type SpinnerProps } from './feedback/Spinner';
 
 export { Button as MmButton } from './primitives/Button';
 export { Card as MmCard } from './primitives/Card';

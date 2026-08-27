@@ -1,3 +1,4 @@
+import { Spinner } from '@medmate/ui';
 import {
   Component,
   Suspense,
@@ -141,7 +142,7 @@ export function RemoteLoader({
   module,
   remoteUrl,
   componentProps,
-  fallback = <p role="status">Loading micro-frontend…</p>,
+  fallback = <Spinner block />,
   errorFallback,
   loadRemote: loadRemoteFn = defaultRemoteImporter,
 }: RemoteLoaderProps) {
