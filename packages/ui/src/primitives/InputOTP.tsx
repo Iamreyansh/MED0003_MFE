@@ -1,7 +1,7 @@
 import { Flex } from '../elements/Flex';
-import { Text } from '../elements/Text';
 import { cn } from '../lib/cn';
 import { Input } from './Input';
+import { Label } from './Label';
 
 export type InputOTPProps = {
   value?: string;
@@ -11,6 +11,10 @@ export type InputOTPProps = {
   disabled?: boolean;
 };
 
+function takeDigits(raw: string, length: number): string {
+  return raw.replace(/\D/g, '').slice(0, length);
+}
+
 export function InputOTP({
   value,
   onChange,
@@ -19,11 +23,41 @@ export function InputOTP({
   disabled = false,
 }: InputOTPProps) {
   const digits = value ?? '';
+  const inputId = `${label.toLowerCase().replace(/\s+/g, '-')}-otp`;
 
   return (
     <Flex direction="column" gap="2" data-slot="input-otp">
-      <Text as="span">{label}</Text>
-      <Flex gap="2" role="group" aria-label={label}>
+      <Label htmlFor={inputId}>{label}</Label>
+      <Input
+        id={inputId}
+        type="text"
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={length}
+        disabled={disabled}
+        value={digits}
+        onChange={(event) => onChange(takeDigits(event.target.value, length))}
+        onPaste={(event) => {
+          const next = takeDigits(event.clipboardData.getData('text'), length);
+          if (next.length > 0) {
+            event.preventDefault();
+            onChange(next);
+          }
+        }}
+        className="absolute h-px w-px overflow-hidden whitespace-nowrap border-0 p-0 [clip-path:inset(50%)] [clip:rect(0,0,0,0)]"
+      />
+      <Flex
+        gap="2"
+        role="group"
+        aria-label={label}
+        onPaste={(event) => {
+          const next = takeDigits(event.clipboardData.getData('text'), length);
+          if (next.length > 0) {
+            event.preventDefault();
+            onChange(next);
+          }
+        }}
+      >
         {Array.from({ length }, (_, index) => {
           const filled = digits[index] ?? '';
           const active = index === digits.length;

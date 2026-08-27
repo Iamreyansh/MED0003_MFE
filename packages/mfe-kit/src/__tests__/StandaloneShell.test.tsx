@@ -30,4 +30,16 @@ describe('StandaloneShell', () => {
     );
     expect(screen.getByText('Local only')).toBeTruthy();
   });
+
+  it('accepts a wider max-width class', () => {
+    const { container } = render(
+      <StandaloneShell title="Wide" className="max-w-6xl">
+        <span>Body</span>
+      </StandaloneShell>,
+    );
+    expect(container.querySelector('main')?.className).toContain('max-w-6xl');
+    expect(container.querySelector('main')?.className).not.toContain(
+      'max-w-4xl',
+    );
+  });
 });

@@ -14,17 +14,19 @@ Package names are unchanged:
 | `@medmate/vite-config`       | `packages/tooling/vite-config` | Host Vite factory |
 | `@medmate/ui`                | `packages/ui`                  | Optional in host  |
 
-The Todo remote still exposes `./Mfe`. Host env stays:
+The Todo remote still exposes `./Mfe`. Local host env stays optional:
 
 ```
 VITE_REMOTE_TODO_URL=http://localhost:5101/mf-manifest.json
 ```
 
-Production:
+Deployed hosts set one suffix for every remote (`getRemoteUrl` builds `https://<name>.<suffix>/mf-manifest.json`):
 
 ```
-VITE_REMOTE_TODO_URL=https://todo.mfe.nammamedmate.com/mf-manifest.json
+VITE_MFE_DOMAIN_SUFFIX=mfe.nammamedmate.com
 ```
+
+Staging uses `VITE_MFE_DOMAIN_SUFFIX=staging.mfe.nammamedmate.com`. Explicit `VITE_REMOTE_<NAME>_URL` still overrides a single remote.
 
 Do **not** load a federated layout/shell from remotes. Compose domain UI inside
 host `<main>` via `RemoteLoader` / `MfeOutlet`.

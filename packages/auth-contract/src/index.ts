@@ -142,7 +142,7 @@ export type AuthFeatureData = {
   busy?: boolean;
   disabled?: boolean;
   copy?: Partial<AuthCopy>;
-  links?: { posLogin?: string; staffLogin?: string };
+  links?: { posLogin?: string; staffLogin?: string; register?: string };
   sessions?: AuthSessionRow[];
   otpContext?: AuthStepContext;
 };

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Alert } from '../Alert';
@@ -200,6 +200,36 @@ describe('InputOTP', () => {
     );
     expect(screen.getByLabelText('OTP digit 1')).toHaveProperty('value', '1');
     expect(screen.getByLabelText('OTP digit 1')).toBeDisabled();
+  });
+
+  it('accepts a pasted 6-digit code on the hidden input', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<InputOTP label="Email OTP" onChange={onChange} />);
+    const hidden = screen.getByLabelText('Email OTP', { selector: 'input' });
+    fireEvent.change(hidden, { target: { value: '12ab34' } });
+    expect(onChange).toHaveBeenCalledWith('1234');
+    await user.click(hidden);
+    await user.paste('123456');
+    expect(onChange).toHaveBeenCalledWith('123456');
+    fireEvent.paste(hidden, {
+      clipboardData: { getData: () => 'letters' },
+    });
+    expect(onChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('accepts a pasted code on the visible group', () => {
+    const onChange = vi.fn();
+    render(<InputOTP label="Email OTP" onChange={onChange} />);
+    const group = screen.getByRole('group', { name: 'Email OTP' });
+    fireEvent.paste(group, {
+      clipboardData: { getData: () => '654321' },
+    });
+    expect(onChange).toHaveBeenCalledWith('654321');
+    fireEvent.paste(group, {
+      clipboardData: { getData: () => 'abc' },
+    });
+    expect(onChange).toHaveBeenCalledTimes(1);
   });
 });
 

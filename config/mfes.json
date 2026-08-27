@@ -30,6 +30,16 @@
       "port": 5102,
       "domain": "auth.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "onboarding",
+      "package": "@medmate/onboarding",
+      "path": "apps/onboarding",
+      "federationName": "onboarding",
+      "expose": "./Mfe",
+      "port": 5103,
+      "domain": "onboarding.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

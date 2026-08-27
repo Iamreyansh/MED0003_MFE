@@ -107,6 +107,15 @@ export function PharmacyLoginScreen({
                   Counter PIN sign-in
                 </Button>
               ) : null}
+              {feature.links?.register && onNavigate ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => onNavigate(feature.links!.register!)}
+                >
+                  Create pharmacy account
+                </Button>
+              ) : null}
             </Stack>
           </Form>
         );

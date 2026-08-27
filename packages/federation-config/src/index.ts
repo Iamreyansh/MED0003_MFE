@@ -42,6 +42,50 @@ export const MFE_SHARED = {
 
 export const REMOTE_ENV_PATTERN = /^VITE_REMOTE_([A-Z0-9_]+)_URL$/;
 
+export const MFE_DOMAIN_SUFFIX_ENV = 'VITE_MFE_DOMAIN_SUFFIX';
+
+export const ALLOWED_MFE_DOMAIN_SUFFIXES = [
+  'mfe.nammamedmate.com',
+  'staging.mfe.nammamedmate.com',
+] as const;
+
+export type AllowedMfeDomainSuffix =
+  (typeof ALLOWED_MFE_DOMAIN_SUFFIXES)[number];
+
+const REMOTE_DNS_LABEL = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/;
+const ALLOWED_SUFFIX_SET = new Set<string>(ALLOWED_MFE_DOMAIN_SUFFIXES);
+
+export function normalizeMfeDomainSuffix(
+  value: string | undefined,
+): AllowedMfeDomainSuffix | undefined {
+  if (!value) {
+    return undefined;
+  }
+  let suffix = value.trim().toLowerCase();
+  suffix = suffix.replace(/^https?:\/\//, '');
+  suffix = suffix.replace(/\/+$/, '');
+  suffix = suffix.replace(/^\.+/, '');
+  if (!ALLOWED_SUFFIX_SET.has(suffix)) {
+    return undefined;
+  }
+  return suffix as AllowedMfeDomainSuffix;
+}
+
+export function remoteManifestUrl(
+  name: string,
+  suffix: string,
+): string | undefined {
+  const label = name.trim().toLowerCase();
+  if (!REMOTE_DNS_LABEL.test(label)) {
+    return undefined;
+  }
+  const normalized = normalizeMfeDomainSuffix(suffix);
+  if (!normalized) {
+    return undefined;
+  }
+  return `https://${label}.${normalized}/mf-manifest.json`;
+}
+
 export function buildFederationRemotes(
   env: EnvRecord,
 ): Record<string, FederationRemote> {
@@ -69,8 +113,11 @@ export function remoteEnvKey(name: string): string {
 }
 
 export function getRemoteUrl(name: string, env: EnvRecord): string | undefined {
-  const value = env[remoteEnvKey(name)];
-  return value && value.length > 0 ? value : undefined;
+  const explicit = env[remoteEnvKey(name)];
+  if (explicit && explicit.length > 0) {
+    return explicit;
+  }
+  return remoteManifestUrl(name, env[MFE_DOMAIN_SUFFIX_ENV] ?? '');
 }
 
 export function listConfiguredRemotes(env: EnvRecord): string[] {
