@@ -127,7 +127,9 @@ describe('RemoteLoader', () => {
       />,
     );
 
+    expect(screen.getByTestId('remote-loading')).toBeInTheDocument();
     expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.queryByText(/micro-frontend/i)).toBeNull();
 
     resolveLoad({
       default: function Todo() {

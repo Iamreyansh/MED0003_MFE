@@ -1,4 +1,3 @@
-import { Spinner } from '@medmate/ui';
 import {
   Component,
   Suspense,
@@ -137,12 +136,39 @@ function DefaultRemoteError({
   );
 }
 
+function DefaultRemoteFallback() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading"
+      data-testid="remote-loading"
+      className="mm-spinner mm-spinner--block"
+    >
+      <svg
+        className="mm-spinner__icon"
+        width={32}
+        height={32}
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M21 12a9 9 0 1 1-6.219-8.56"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 export function RemoteLoader({
   remote,
   module,
   remoteUrl,
   componentProps,
-  fallback = <Spinner block />,
+  fallback = <DefaultRemoteFallback />,
   errorFallback,
   loadRemote: loadRemoteFn = defaultRemoteImporter,
 }: RemoteLoaderProps) {
