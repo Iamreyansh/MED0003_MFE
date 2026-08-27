@@ -40,6 +40,16 @@
       "port": 5103,
       "domain": "onboarding.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "settings",
+      "package": "@medmate/settings",
+      "path": "apps/settings",
+      "federationName": "settings",
+      "expose": "./Mfe",
+      "port": 5104,
+      "domain": "settings.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

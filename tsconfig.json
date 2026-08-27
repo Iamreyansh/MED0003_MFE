@@ -11,6 +11,9 @@
       "path": "./packages/onboarding-contract"
     },
     {
+      "path": "./packages/settings-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -42,6 +45,9 @@
     },
     {
       "path": "./apps/onboarding"
+    },
+    {
+      "path": "./apps/settings"
     }
   ]
 }
