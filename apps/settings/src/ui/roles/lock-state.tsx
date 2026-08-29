@@ -1,5 +1,6 @@
 import { Box, Button, Flex, Stack, Text } from '@medmate/ui';
 import { Lock, ShieldOff } from 'lucide-react';
+import { useEffect } from 'react';
 import { ROLES_COPY } from '../../lib/copy';
 import { RoleIconTile } from './icon-tile';
 
@@ -8,12 +9,20 @@ export function RolesLockState({
   isStaff,
   message,
   onViewPlans,
+  onTrack,
 }: {
   kind: 'plan' | 'forbidden';
   isStaff: boolean;
   message?: string;
   onViewPlans?: () => void;
+  onTrack?: (event: string, properties?: Record<string, unknown>) => void;
 }) {
+  useEffect(() => {
+    if (kind === 'plan') {
+      onTrack?.('plan_lock_shown', { code: 'MODULE_NOT_IN_PLAN' });
+    }
+  }, [kind, onTrack]);
+
   if (kind === 'forbidden') {
     return (
       <Box

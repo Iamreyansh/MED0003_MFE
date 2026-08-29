@@ -31,9 +31,11 @@ const DEFAULT_CREATE_PERMISSIONS = ['orders:read'];
 export function RolesScreen({
   feature,
   onNavigate,
+  onTrack,
 }: {
   feature: SettingsFeatureData;
   onNavigate?: (path: string) => void;
+  onTrack?: (event: string, properties?: Record<string, unknown>) => void;
 }) {
   const canWrite = Boolean(feature.canWrite);
   const canEditPermissions = Boolean(
@@ -203,6 +205,7 @@ export function RolesScreen({
         kind="plan"
         isStaff={isStaff}
         onViewPlans={() => onNavigate?.('/subscription')}
+        onTrack={onTrack}
       />
     );
   }

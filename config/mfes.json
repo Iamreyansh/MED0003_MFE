@@ -50,6 +50,16 @@
       "port": 5104,
       "domain": "settings.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "subscription",
+      "package": "@medmate/subscription",
+      "path": "apps/subscription",
+      "federationName": "subscription",
+      "expose": "./Mfe",
+      "port": 5105,
+      "domain": "subscription.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

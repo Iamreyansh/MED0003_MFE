@@ -187,8 +187,19 @@ describe('RolesScreen', () => {
         formError: 'Roles are not included in this plan.',
       }),
     });
-    render(<SettingsMfe data={data(feature('roles', onSubmit))} />);
+    const track = vi.fn();
+    render(
+      <SettingsMfe
+        data={{
+          ...data(feature('roles', onSubmit)),
+          capabilities: { telemetry: { track } },
+        }}
+      />,
+    );
     expect(await screen.findByTestId('roles-plan-lock')).toBeTruthy();
+    expect(track).toHaveBeenCalledWith('plan_lock_shown', {
+      code: 'MODULE_NOT_IN_PLAN',
+    });
     await userEvent
       .setup()
       .click(screen.getByRole('button', { name: 'View plans' }));

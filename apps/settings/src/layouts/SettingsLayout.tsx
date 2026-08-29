@@ -48,6 +48,7 @@ export function SettingsLayout({ data }: SettingsMfeProps) {
         <RolesScreen
           feature={feature}
           onNavigate={data.capabilities?.navigate}
+          onTrack={data.capabilities?.telemetry?.track}
         />
       )}
     </Box>
