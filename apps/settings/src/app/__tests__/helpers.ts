@@ -14,6 +14,7 @@ export function feature(
     screen,
     onSubmit,
     canWrite: true,
+    canEditPermissions: true,
     role: 'pharmacy_owner',
     pharmacyName: 'Sri Rama Medicals',
     pharmacyStatus: 'ACTIVE',

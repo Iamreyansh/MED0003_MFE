@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  assignedStaffLabel,
   KYC_PENDING_STATUSES,
   PROFILE_NAV,
   profileStatusLabel,
+  ROLES_COPY,
   rootTestId,
   SCREEN_COPY,
   storefrontStatusLabel,
@@ -14,6 +16,12 @@ describe('settings copy', () => {
     expect(SCREEN_COPY.profile.title).toMatch(/profile/i);
     expect(rootTestId('profile')).toBe('settings-profile-page');
     expect(rootTestId('storefront')).toBe('settings-storefront-page');
+    expect(rootTestId('roles')).toBe('settings-roles-page');
+    expect(SCREEN_COPY.roles.title).toBe('Roles');
+    expect(ROLES_COPY.kpiSystem).toBe('System roles');
+    expect(ROLES_COPY.emptyCustom).toMatch(/custom roles/i);
+    expect(assignedStaffLabel(0)).toBe('0 staff');
+    expect(assignedStaffLabel(2)).toBe('2 staff');
     expect(KYC_PENDING_STATUSES.has('PENDING_KYC')).toBe(true);
     expect(PROFILE_NAV[0]?.id).toBe('section-completeness');
   });

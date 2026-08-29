@@ -419,7 +419,11 @@ export function ProfileScreen({
                               formik,
                               profileFormRef.current,
                             );
-                            void formik.setFieldTouched('logo_url', true, false);
+                            void formik.setFieldTouched(
+                              'logo_url',
+                              true,
+                              false,
+                            );
                           } finally {
                             setLogoBusy(false);
                           }

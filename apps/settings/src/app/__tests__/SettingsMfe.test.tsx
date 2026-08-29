@@ -116,5 +116,12 @@ describe('SettingsLayout', () => {
     expect(
       screen.getByRole('heading', { name: 'Take pharm-1 offline?' }),
     ).toBeTruthy();
+    rerender(
+      <SettingsMfe
+        data={data(feature('roles', async () => ({ ok: true, roles: [] })))}
+      />,
+    );
+    expect(await screen.findByTestId('settings-roles-page')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Roles' })).toBeTruthy();
   });
 });

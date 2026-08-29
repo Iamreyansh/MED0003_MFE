@@ -8,6 +8,7 @@ import {
   storefrontStatusLabel,
 } from '../lib/copy';
 import { ProfileScreen } from '../ui/profile';
+import { RolesScreen } from '../ui/roles';
 import { PageHeader } from '../ui/shared/page-header';
 import { StorefrontScreen } from '../ui/storefront';
 
@@ -20,11 +21,13 @@ export function SettingsLayout({ data }: SettingsMfeProps) {
   const badge =
     feature.screen === 'profile'
       ? profileStatusLabel(feature.pharmacyStatus)
-      : storefrontStatusLabel({
-          pharmacyStatus: feature.pharmacyStatus,
-          adminForcedOffline: feature.adminForcedOffline,
-          isOnline: feature.isOnline,
-        });
+      : feature.screen === 'storefront'
+        ? storefrontStatusLabel({
+            pharmacyStatus: feature.pharmacyStatus,
+            adminForcedOffline: feature.adminForcedOffline,
+            isOnline: feature.isOnline,
+          })
+        : undefined;
   return (
     <Box data-testid={rootTestId(feature.screen)} className="w-full">
       <PageHeader title={copy.title} helper={copy.helper} badge={badge} />
@@ -33,13 +36,18 @@ export function SettingsLayout({ data }: SettingsMfeProps) {
           feature={feature}
           onNavigate={data.capabilities?.navigate}
         />
-      ) : (
+      ) : feature.screen === 'storefront' ? (
         <StorefrontScreen
           feature={feature}
           pharmacyName={
             feature.pharmacyName || data.context.pharmacyId || 'this pharmacy'
           }
           onEmit={data.capabilities?.events?.emit}
+        />
+      ) : (
+        <RolesScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
         />
       )}
     </Box>

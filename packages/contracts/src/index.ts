@@ -89,6 +89,38 @@ export function isSupportedContractVersion(version: string): boolean {
   return version === MFE_CONTRACT_VERSION;
 }
 
+/**
+ * Permission matcher for envelope `context.permissions`.
+ * Supports exact `resource:action`, `resource:*`, and `*`.
+ * A missing/empty `needed` code is treated as public.
+ */
+export function can(
+  granted: readonly string[] | undefined,
+  needed?: string,
+): boolean {
+  if (!needed) {
+    return true;
+  }
+  const list = granted ?? [];
+  if (list.length === 0) {
+    return false;
+  }
+  if (list.includes('*')) {
+    return true;
+  }
+  if (list.includes(needed)) {
+    return true;
+  }
+  const sep = needed.indexOf(':');
+  if (sep > 0) {
+    const resource = needed.slice(0, sep);
+    if (list.includes(`${resource}:*`)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function assertMfeDataEnvelope(
   value: unknown,
 ): asserts value is MfeDataEnvelope {

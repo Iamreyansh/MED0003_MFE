@@ -16,12 +16,15 @@ import {
   isValidPincode,
   normalizeEmail,
   normalizePhone,
+  roleNameFromDisplay,
 } from '../index';
 
 describe('settings-contract', () => {
   it('recognises screens', () => {
     expect(SETTINGS_SCREENS).toContain('profile');
+    expect(SETTINGS_SCREENS).toContain('roles');
     expect(isSettingsScreen('storefront')).toBe(true);
+    expect(isSettingsScreen('roles')).toBe(true);
     expect(isSettingsScreen('nope')).toBe(false);
     expect(isSettingsScreen(1)).toBe(false);
     expect(STOREFRONT_EVENT).toBe('pharmacy.storefront');
@@ -71,5 +74,12 @@ describe('settings-contract', () => {
     expect(completenessSectionId('gstin')).toBe('section-tax');
     expect(completenessSectionId('bank_account')).toBe('section-bank');
     expect(completenessSectionId('unknown_field')).toBe('section-identity');
+  });
+
+  it('derives snake_case role names from display labels', () => {
+    expect(roleNameFromDisplay('Senior Pharmacist')).toBe('senior_pharmacist');
+    expect(roleNameFromDisplay('  Night Shift  ')).toBe('night_shift');
+    expect(roleNameFromDisplay('')).toBe('');
+    expect(roleNameFromDisplay('2nd cashier')).toBe('role_2nd_cashier');
   });
 });

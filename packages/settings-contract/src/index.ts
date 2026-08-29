@@ -1,4 +1,4 @@
-export const SETTINGS_SCREENS = ['profile', 'storefront'] as const;
+export const SETTINGS_SCREENS = ['profile', 'storefront', 'roles'] as const;
 
 export type SettingsScreen = (typeof SETTINGS_SCREENS)[number];
 
@@ -138,6 +138,61 @@ export type StorefrontPayload = {
   changed_at?: string;
 };
 
+export type PharmacyRoleRow = {
+  id: string;
+  name: string;
+  display_name: string;
+  is_system: boolean;
+  pharmacy_id?: string | null;
+  permissions?: string[];
+  staff_count?: number;
+};
+
+export type PharmacyRoleCreated = {
+  id: string;
+  name: string;
+  display_name: string;
+  is_system: boolean;
+  pharmacy_id?: string | null;
+  permissions?: string[];
+  created_at?: string;
+};
+
+export type RolePermissionItem = {
+  permission: string;
+  resource: string;
+  action: string;
+};
+
+export type RolePermissionsPayload = {
+  role_id: string;
+  role_name: string;
+  is_system?: boolean;
+  permissions: RolePermissionItem[];
+};
+
+export type RolePermissionsSavePayload = {
+  role_id: string;
+  role_name: string;
+  permissions: string[];
+  updated_at?: string;
+};
+
+export type CreateRoleValues = {
+  name: string;
+  display_name: string;
+  permissions: string[];
+};
+
+export const ROLE_PERMISSION_RESOURCES = [
+  'orders',
+  'inventory',
+  'staff',
+  'reports',
+  'prescriptions',
+  'payments',
+] as const;
+
 export type SettingsCommand =
   | { screen: 'profile'; action: 'load' }
   | { screen: 'profile'; action: 'save'; values: ProfilePatchValues }
@@ -151,7 +206,16 @@ export type SettingsCommand =
       action: 'uploadLogo';
       values: { file: File };
     }
-  | { screen: 'storefront'; action: 'save'; values: { is_online: boolean } };
+  | { screen: 'storefront'; action: 'save'; values: { is_online: boolean } }
+  | { screen: 'roles'; action: 'load' }
+  | { screen: 'roles'; action: 'create'; values: CreateRoleValues }
+  | { screen: 'roles'; action: 'delete'; values: { id: string } }
+  | { screen: 'roles'; action: 'loadPermissions'; values: { id: string } }
+  | {
+      screen: 'roles';
+      action: 'savePermissions';
+      values: { id: string; permissions: string[] };
+    };
 
 export type SettingsSubmitSuccess = {
   ok: true;
@@ -162,6 +226,10 @@ export type SettingsSubmitSuccess = {
   bank?: BankSummary | null;
   contact?: Record<string, unknown>;
   storefront?: StorefrontPayload;
+  roles?: PharmacyRoleRow[];
+  createdRole?: PharmacyRoleCreated;
+  rolePermissions?: RolePermissionsPayload;
+  savedPermissions?: RolePermissionsSavePayload;
 };
 
 export type SettingsSubmitFailure = {
@@ -171,13 +239,15 @@ export type SettingsSubmitFailure = {
   code?: string;
 };
 
-export type SettingsSubmitResult = SettingsSubmitSuccess | SettingsSubmitFailure;
+export type SettingsSubmitResult =
+  SettingsSubmitSuccess | SettingsSubmitFailure;
 
 export type SettingsFeatureData = {
   screen: SettingsScreen;
   onSubmit: (command: SettingsCommand) => Promise<SettingsSubmitResult>;
   role?: PharmacyRole | null;
   canWrite?: boolean;
+  canEditPermissions?: boolean;
   pharmacyName?: string;
   pharmacyStatus?: string | null;
   isOnline?: boolean | null;
@@ -270,4 +340,20 @@ export const COMPLETENESS_SECTION: Record<string, string> = {
 export function completenessSectionId(field: string): string {
   const section = COMPLETENESS_SECTION[field] ?? 'identity';
   return `section-${section}`;
+}
+
+export function roleNameFromDisplay(displayName: string): string {
+  const slug = displayName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 50);
+  if (!slug) {
+    return '';
+  }
+  if (/^[a-z]/.test(slug)) {
+    return slug;
+  }
+  return `role_${slug}`.slice(0, 50);
 }

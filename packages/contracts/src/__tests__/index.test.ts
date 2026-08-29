@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MFE_CONTRACT_VERSION,
   assertMfeDataEnvelope,
+  can,
   isSupportedContractVersion,
 } from '../index';
 
@@ -18,7 +19,7 @@ describe('contracts', () => {
         context: {
           hostId: 'pharmacy-portal',
           locale: 'en-IN',
-          permissions: ['todo:read'],
+          permissions: ['staff:manage'],
         },
         feature: { title: 'Demo' },
       }),
@@ -85,5 +86,19 @@ describe('contracts', () => {
         feature: {},
       } as never),
     ).toThrow(/string codes/);
+  });
+});
+
+describe('can', () => {
+  it('matches exact, resource wildcard, and star', () => {
+    expect(can(['orders:read'], 'orders:read')).toBe(true);
+    expect(can(['inventory:*'], 'inventory:write')).toBe(true);
+    expect(can(['inventory:*'], 'orders:read')).toBe(false);
+    expect(can(['*'], 'reports:read')).toBe(true);
+    expect(can(['staff:manage'], undefined)).toBe(true);
+    expect(can(['staff:manage'], '')).toBe(true);
+    expect(can([], 'orders:read')).toBe(false);
+    expect(can(undefined, 'orders:read')).toBe(false);
+    expect(can(['orders:read'], 'inventory:write')).toBe(false);
   });
 });

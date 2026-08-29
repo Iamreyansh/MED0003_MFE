@@ -18,9 +18,7 @@ test.describe('Settings MFE standalone', () => {
     await expect(page.getByTestId('settings-profile-page')).toBeVisible();
     await expect(page.getByLabel('Business name')).toBeVisible();
     await expect(page.getByLabel('Pharmacy logo')).toBeVisible();
-    await expect(
-      page.getByText('You do not need a web link.'),
-    ).toBeVisible();
+    await expect(page.getByText('You do not need a web link.')).toBeVisible();
     await expect(
       page.getByRole('list', { name: 'Missing profile fields' }),
     ).toBeVisible();
@@ -59,5 +57,46 @@ test.describe('Settings MFE standalone', () => {
       page.getByRole('heading', { name: 'Pharmacy profile' }),
     ).toBeVisible();
     expect(await horizontalOverflow(page)).toBeLessThan(8);
+  });
+
+  test('switches to roles list and opens an immutable matrix', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'roles' }).click();
+    await expect(page.getByTestId('settings-roles-page')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Roles' })).toBeVisible();
+    await expect(page.getByTestId('roles-summary')).toBeVisible();
+    await expect(page.getByText('Pharmacy Owner')).toBeVisible();
+    await expect(page.getByText('Night Shift')).toBeVisible();
+    await page
+      .getByRole('button', { name: 'View permissions' })
+      .first()
+      .click();
+    await expect(page.getByTestId('roles-matrix')).toBeVisible();
+    await expect(page.getByLabel('Read')).toBeDisabled();
+  });
+
+  test('keeps roles usable at 375px', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'roles' }).click();
+    await expect(page.getByTestId('settings-roles-page')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Roles' })).toBeVisible();
+    expect(await horizontalOverflow(page)).toBeLessThan(8);
+  });
+
+  test('opens create role from the keyboard', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'roles' }).click();
+    const create = page.getByRole('button', { name: 'Create role' });
+    await expect(create).toBeVisible();
+    await create.focus();
+    await expect(create).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(
+      page.getByRole('heading', { name: 'Create role' }),
+    ).toBeVisible();
+    await expect(page.getByLabel('Display name')).toBeVisible();
   });
 });

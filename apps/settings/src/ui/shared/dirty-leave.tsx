@@ -24,9 +24,11 @@ function isInternalPath(href: string): boolean {
 export function DirtyLeaveGuard({
   dirty,
   onNavigate,
+  description = 'Changes on this profile have not been saved.',
 }: {
   dirty: boolean;
   onNavigate?: (path: string) => void;
+  description?: string;
 }) {
   const [pending, setPending] = useState<string | null>(null);
 
@@ -75,9 +77,7 @@ export function DirtyLeaveGuard({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Leave without saving?</DialogTitle>
-          <DialogDescription>
-            Changes on this profile have not been saved.
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button
