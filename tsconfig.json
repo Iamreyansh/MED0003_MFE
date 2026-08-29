@@ -17,6 +17,9 @@
       "path": "./packages/subscription-contract"
     },
     {
+      "path": "./packages/catalogue-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -54,6 +57,9 @@
     },
     {
       "path": "./apps/subscription"
+    },
+    {
+      "path": "./apps/catalogue"
     }
   ]
 }

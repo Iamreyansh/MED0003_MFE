@@ -105,9 +105,9 @@ describe('subscription-contract', () => {
       order_id: 'ord_1',
     });
     expect(publicPayFields(null)).toEqual({});
-    expect(
-      checkoutHref({ payment_link: 'https://pay.example/a' }),
-    ).toBe('https://pay.example/a');
+    expect(checkoutHref({ payment_link: 'https://pay.example/a' })).toBe(
+      'https://pay.example/a',
+    );
     expect(checkoutHref({ checkout_url: 'https://pay.example/b' })).toBe(
       'https://pay.example/b',
     );

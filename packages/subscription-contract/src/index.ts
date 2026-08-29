@@ -14,11 +14,7 @@ export const PLAN_RANK: Record<PlanCode, number> = {
 };
 
 export type SubscriptionLifecycle =
-  | 'TRIAL'
-  | 'ACTIVE'
-  | 'PAST_DUE'
-  | 'CANCELLED'
-  | 'EXPIRED';
+  'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'EXPIRED';
 
 export const PLAN_LOCK_CODES = [
   'PLAN_FEATURE_LOCKED',
@@ -129,14 +125,11 @@ export type SubscriptionSubmitFailure = {
 };
 
 export type SubscriptionSubmitResult =
-  | SubscriptionSubmitSuccess
-  | SubscriptionSubmitFailure;
+  SubscriptionSubmitSuccess | SubscriptionSubmitFailure;
 
 export type SubscriptionFeatureData = {
   screen: SubscriptionScreen;
-  onSubmit: (
-    command: SubscriptionCommand,
-  ) => Promise<SubscriptionSubmitResult>;
+  onSubmit: (command: SubscriptionCommand) => Promise<SubscriptionSubmitResult>;
   role?: PharmacyRole | null;
   canWrite?: boolean;
   errors?: Record<string, string>;
@@ -247,9 +240,7 @@ export function cancelCopy(): string {
   return 'Cancelling ends Growth modules such as analytics, distributors, reorder, offers, and online visibility at the next renewal.';
 }
 
-export function enterprisePriceCopy(
-  plan: PlanCard,
-): string | null {
+export function enterprisePriceCopy(plan: PlanCard): string | null {
   if (mapPlanCode(plan.name) !== 'ENTERPRISE') {
     return null;
   }
@@ -296,7 +287,9 @@ export function checkoutHref(pay: PayPublicFields | undefined): string | null {
   return null;
 }
 
-export function invoiceIsPaid(invoice: SaasInvoice | null | undefined): boolean {
+export function invoiceIsPaid(
+  invoice: SaasInvoice | null | undefined,
+): boolean {
   if (!invoice) {
     return false;
   }

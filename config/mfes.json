@@ -60,6 +60,16 @@
       "port": 5105,
       "domain": "subscription.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "catalogue",
+      "package": "@medmate/catalogue",
+      "path": "apps/catalogue",
+      "federationName": "catalogue",
+      "expose": "./Mfe",
+      "port": 5106,
+      "domain": "catalogue.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }
