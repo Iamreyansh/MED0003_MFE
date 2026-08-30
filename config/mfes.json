@@ -80,6 +80,16 @@
       "port": 5107,
       "domain": "inventory.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "procurement",
+      "package": "@medmate/procurement",
+      "path": "apps/procurement",
+      "federationName": "procurement",
+      "expose": "./Mfe",
+      "port": 5108,
+      "domain": "procurement.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

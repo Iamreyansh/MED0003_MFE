@@ -17,8 +17,8 @@ import {
   data,
   feature,
 } from '../../../app/__tests__/helpers';
-import { RACKS_COPY } from '../../../lib/copy';
 import InventoryMfe from '../../../app/InventoryMfe';
+import { RACKS_COPY } from '../../../lib/copy';
 
 afterEach(() => {
   cleanup();
