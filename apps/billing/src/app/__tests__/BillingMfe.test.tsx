@@ -7,6 +7,9 @@ import BillingMfe from '../BillingMfe';
 import {
   INVOICE_DETAIL,
   INVOICE_LIST,
+  KHATA_DETAIL,
+  KHATA_LIST,
+  OFFERS_LIST,
   SALES_LIST,
   SALES_SUMMARY,
   SETTINGS,
@@ -81,5 +84,41 @@ describe('BillingLayout', () => {
       />,
     );
     expect(await screen.findByTestId('billing-sales-page')).toBeTruthy();
+    rerender(
+      <BillingMfe data={data(feature('khata', async () => KHATA_LIST))} />,
+    );
+    expect(await screen.findByTestId('billing-khata-page')).toBeTruthy();
+    rerender(
+      <BillingMfe
+        data={data(feature('khata-detail', async () => KHATA_DETAIL))}
+      />,
+    );
+    expect(await screen.findByTestId('billing-khata-detail-page')).toBeTruthy();
+    rerender(
+      <BillingMfe
+        data={data(
+          feature('khata-detail', async () => KHATA_DETAIL),
+          {
+            capabilities: { navigate: () => undefined },
+          },
+        )}
+      />,
+    );
+    expect(await screen.findByTestId('billing-khata-detail-page')).toBeTruthy();
+    rerender(
+      <BillingMfe data={data(feature('offers', async () => OFFERS_LIST))} />,
+    );
+    expect(await screen.findByTestId('billing-offers-page')).toBeTruthy();
+    rerender(
+      <BillingMfe
+        data={data(
+          feature('offers', async () => OFFERS_LIST),
+          {
+            capabilities: { navigate: () => undefined },
+          },
+        )}
+      />,
+    );
+    expect(await screen.findByTestId('billing-offers-page')).toBeTruthy();
   });
 });

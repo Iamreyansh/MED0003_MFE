@@ -5,6 +5,9 @@ import { SCREEN_COPY, rootTestId } from '../lib/copy';
 import { InvoiceDetailScreen } from '../ui/invoice-detail';
 import { InvoiceSettingsScreen } from '../ui/invoice-settings';
 import { InvoicesScreen } from '../ui/invoices';
+import { KhataScreen } from '../ui/khata';
+import { KhataDetailScreen } from '../ui/khata-detail';
+import { OffersScreen } from '../ui/offers';
 import { SalesScreen } from '../ui/sales';
 import { PageHeader } from '../ui/shared/page-header';
 
@@ -33,6 +36,24 @@ export function BillingLayout({ data }: BillingMfeProps) {
         />
       ) : null}
       {feature.screen === 'sales' ? <SalesScreen feature={feature} /> : null}
+      {feature.screen === 'khata' ? (
+        <KhataScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
+        />
+      ) : null}
+      {feature.screen === 'khata-detail' ? (
+        <KhataDetailScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
+        />
+      ) : null}
+      {feature.screen === 'offers' ? (
+        <OffersScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
+        />
+      ) : null}
     </Box>
   );
 }

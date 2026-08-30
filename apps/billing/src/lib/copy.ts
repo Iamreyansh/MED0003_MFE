@@ -25,6 +25,22 @@ export const SCREEN_COPY: Record<
     helper: 'Day close from Core totals. Do not treat this as analytics.',
     kicker: 'Money',
   },
+  khata: {
+    title: 'Khata',
+    helper: 'Neighbourhood credit balances from Core. Starter plan or higher.',
+    kicker: 'Money',
+  },
+  'khata-detail': {
+    title: 'Khata customer',
+    helper: 'Ledger, unpaid bills, repayment, and reminders.',
+    kicker: 'Money',
+  },
+  offers: {
+    title: 'Offers',
+    helper:
+      'Local schemes for the counter and storefront. Growth plan or higher.',
+    kicker: 'Money',
+  },
 };
 
 export function rootTestId(screen: BillingScreen): string {
@@ -160,3 +176,129 @@ export const SALES_COPY = {
   kpiGst: 'GST collected',
   kpiAvg: 'Average bill',
 } as const;
+
+export const KHATA_COPY = {
+  tableLabel: 'Khata customers',
+  sectionTitle: 'Outstanding',
+  sectionHint: 'Customers with an open credit balance.',
+  historyTitle: 'Payment history',
+  historyHint: 'Repayments collected in the selected period.',
+  historyTableLabel: 'Khata repayments',
+  empty: 'No customers with outstanding credit.',
+  historyEmpty: 'No repayments in this period.',
+  open: 'Open',
+  exportExcel: 'Export Excel',
+  overdueOnly: 'Overdue only',
+  sort: 'Sort',
+  search: 'Search',
+  retry: 'Retry',
+  previous: 'Previous page',
+  next: 'Next page',
+  page: 'Page',
+  kpiOutstanding: 'Outstanding',
+  kpiOverdue: 'Overdue 30d',
+  kpiCollected: 'Collected this month',
+  kpiRate: 'Collection rate',
+  agingCurrent: '0–30 days',
+  agingMid: '31–60 days',
+  agingOld: '60+ days',
+  overdue: 'Overdue',
+  current: 'Current',
+  viewPlans: 'View plans',
+  debtors: 'Debtors',
+  payments: 'Payments',
+} as const;
+
+export const KHATA_DETAIL_COPY = {
+  notFound: 'This customer is no longer on the khata.',
+  retry: 'Retry',
+  customer: 'Customer',
+  outstanding: 'Outstanding',
+  overdue: 'Overdue',
+  creditLimit: 'Credit limit',
+  utilisation: 'Utilisation',
+  unpaid: 'Unpaid bills',
+  unpaidHint: 'Open credit invoices from Core.',
+  unpaidEmpty: 'No unpaid bills.',
+  ledger: 'Ledger',
+  ledgerHint: 'Reverse-chronological entries with running balance.',
+  ledgerEmpty: 'No ledger entries.',
+  repay: 'Record repayment',
+  repayHint: 'Core records the amount against this customer.',
+  repayTitle: 'Record this repayment?',
+  confirm: 'Confirm repayment',
+  cancel: 'Cancel',
+  amount: 'Amount',
+  paymentMode: 'Payment mode',
+  note: 'Note',
+  remind: 'Send reminder',
+  remindHint: 'Owner-only. Core sends an approved template.',
+  remindTitle: 'Send a payment reminder?',
+  remindConfirm: 'Send reminder',
+  channel: 'Channel',
+  template: 'Template',
+  staffRemind: 'Only the owner can send reminders.',
+  viewPlans: 'View plans',
+} as const;
+
+export const OFFERS_COPY = {
+  tableLabel: 'Pharmacy offers',
+  sectionTitle: 'Offers',
+  sectionHint: 'Local schemes. Platform coupons are not listed here.',
+  empty: 'No offers yet.',
+  create: 'Create offer',
+  edit: 'Edit',
+  save: 'Save offer',
+  cancel: 'Cancel',
+  toggleOn: 'Deactivate offer',
+  toggleOff: 'Activate offer',
+  delete: 'Delete',
+  deleteTitle: 'Delete this offer?',
+  deleteHelp:
+    'Offers with redemptions are expired instead of permanently deleted.',
+  confirmDelete: 'Confirm delete',
+  validate: 'Validate coupon',
+  validateHint: 'Same Core check POS uses at checkout.',
+  coupon: 'Coupon code',
+  cartTotal: 'Cart total',
+  runValidate: 'Check coupon',
+  valid: 'Coupon is valid',
+  invalid: 'Coupon is not valid',
+  status: 'Status',
+  retry: 'Retry',
+  previous: 'Previous page',
+  next: 'Next page',
+  page: 'Page',
+  title: 'Title',
+  discountType: 'Discount type',
+  discountValue: 'Discount value',
+  appliesTo: 'Applies to',
+  validFrom: 'Valid from',
+  validUntil: 'Valid until',
+  maxRedemptions: 'Max redemptions',
+  online: 'Online storefront',
+  counter: 'Counter',
+  kpiActive: 'Active offers',
+  kpiRedemptions: 'Redemptions',
+  editorTitle: 'Offer',
+  editorHint: 'Dates are stored as Core calendar days and shown in IST.',
+  staffReadOnly: 'Only the owner can create or change offers.',
+  viewPlans: 'View plans',
+} as const;
+
+export function formatIstDate(value: unknown): string {
+  if (typeof value !== 'string' || value.length === 0) {
+    return '—';
+  }
+  const iso = value.includes('T') ? value : `${value}T00:00:00+05:30`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return new Intl.DateTimeFormat('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date);
+}

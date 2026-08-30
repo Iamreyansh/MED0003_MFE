@@ -6,67 +6,22 @@ resource "aws_cloudfront_origin_access_control" "assets" {
   signing_protocol                  = "sigv4"
 }
 
-resource "aws_cloudfront_response_headers_policy" "cors" {
-  name = "${var.name_prefix}-cors"
-
-  cors_config {
-    access_control_allow_credentials = false
-
-    access_control_allow_headers {
-      items = ["*"]
-    }
-
-    access_control_allow_methods {
-      items = ["GET", "HEAD", "OPTIONS"]
-    }
-
-    access_control_allow_origins {
-      items = var.allowed_origins
-    }
-
-    access_control_expose_headers {
-      items = ["ETag"]
-    }
-
-    access_control_max_age_sec = 600
-    origin_override            = true
-  }
-
-  security_headers_config {
-    content_type_options {
-      override = true
-    }
-
-    frame_options {
-      frame_option = "SAMEORIGIN"
-      override     = true
-    }
-
-    referrer_policy {
-      referrer_policy = "strict-origin-when-cross-origin"
-      override        = true
-    }
-
-    strict_transport_security {
-      access_control_max_age_sec = 31536000
-      include_subdomains         = true
-      preload                    = true
-      override                   = true
-    }
-  }
-}
-
 # AWS managed policies (account-wide, no custom-quota use). Custom policies
-# per MFE exhausted the account Cache Policies limit (20) once catalogue and
-# inventory were added. Origin Cache-Control from scripts/release.sh still
-# governs TTL: hashed assets max-age=31536000, manifests max-age=0.
+# per MFE exhausted the account Cache Policies and Response Headers Policies
+# limits (20). Origin Cache-Control from scripts/release.sh still governs TTL:
+# hashed assets max-age=31536000, manifests max-age=0.
 # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+# https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html
 data "aws_cloudfront_cache_policy" "immutable" {
   name = "Managed-CachingOptimized"
 }
 
 data "aws_cloudfront_cache_policy" "manifest" {
   name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_response_headers_policy" "cors" {
+  name = "Managed-CORS-and-SecurityHeadersPolicy"
 }
 
 resource "aws_cloudfront_distribution" "assets" {
@@ -92,7 +47,7 @@ resource "aws_cloudfront_distribution" "assets" {
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.immutable.id
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
   }
 
   ordered_cache_behavior {
@@ -103,7 +58,7 @@ resource "aws_cloudfront_distribution" "assets" {
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
   }
 
   ordered_cache_behavior {
@@ -114,7 +69,7 @@ resource "aws_cloudfront_distribution" "assets" {
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
   }
 
   ordered_cache_behavior {
@@ -125,7 +80,7 @@ resource "aws_cloudfront_distribution" "assets" {
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
     cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.cors.id
   }
 
   restrictions {

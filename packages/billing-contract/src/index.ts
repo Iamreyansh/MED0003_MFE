@@ -3,6 +3,9 @@ export const BILLING_SCREENS = [
   'invoice-detail',
   'invoice-settings',
   'sales',
+  'khata',
+  'khata-detail',
+  'offers',
 ] as const;
 
 export type BillingScreen = (typeof BILLING_SCREENS)[number];
@@ -223,6 +226,209 @@ export type SalesListQuery = InvoiceListQuery & {
   financial_year?: string;
 };
 
+export type RepayMode = 'CASH' | 'UPI' | 'CARD';
+
+export type RemindChannel = 'WHATSAPP' | 'SMS';
+
+export type RemindTemplate = 'POLITE' | 'FIRM';
+
+export type DiscountType = 'PERCENTAGE' | 'FLAT_RS';
+
+export type OfferAppliesTo = 'ALL' | 'CATEGORY' | 'PRODUCT';
+
+export type OfferStatusFilter = 'ACTIVE' | 'EXPIRED' | 'ALL';
+
+export type OfferDeleteAction = 'HARD_DELETED' | 'SET_EXPIRED';
+
+export type KhataListQuery = {
+  page?: number;
+  limit?: number;
+  overdue_only?: boolean;
+  sort?: string;
+  q?: string;
+};
+
+export type KhataHistoryQuery = {
+  page?: number;
+  limit?: number;
+  from_date?: string;
+  to_date?: string;
+  payment_mode?: string;
+  q?: string;
+};
+
+export type KhataKpi = {
+  total_outstanding?: number | null;
+  overdue_30d?: number | null;
+  collected_this_month?: number | null;
+  collection_rate_pct?: number | null;
+  all_time_credit_given?: number | null;
+};
+
+export type KhataAging = {
+  current_0_30d?: number | null;
+  overdue_31_60d?: number | null;
+  overdue_60d_plus?: number | null;
+};
+
+export type KhataCustomerRow = {
+  customer_id: string;
+  name?: string | null;
+  phone?: string | null;
+  outstanding?: number | null;
+  oldest_unpaid_date?: string | null;
+  days_overdue?: number | null;
+  is_overdue?: boolean | null;
+};
+
+export type KhataUnpaidBill = {
+  invoice_id?: string | null;
+  invoice_number?: string | null;
+  invoice_date?: string | null;
+  amount?: number | null;
+  days_since?: number | null;
+};
+
+export type KhataLedgerEntry = {
+  entry_id?: string | null;
+  type?: 'DEBIT' | 'CREDIT' | string | null;
+  date?: string | null;
+  reference?: string | null;
+  amount?: number | null;
+  running_balance?: number | null;
+};
+
+export type KhataDetail = {
+  customer?: {
+    customer_id?: string | null;
+    name?: string | null;
+    phone?: string | null;
+    credit_limit?: number | null;
+  } | null;
+  summary?: {
+    total_outstanding?: number | null;
+    overdue_amount?: number | null;
+    oldest_unpaid_days?: number | null;
+    credit_utilisation_pct?: number | null;
+  } | null;
+  unpaid_bills?: KhataUnpaidBill[];
+  ledger?: KhataLedgerEntry[];
+  total_outstanding?: number | null;
+};
+
+export type KhataPaymentRow = {
+  receipt_id?: string | null;
+  receipt_number?: string | null;
+  date?: string | null;
+  customer_name?: string | null;
+  customer_phone?: string | null;
+  mode?: string | null;
+  amount?: number | null;
+  note?: string | null;
+  running_outstanding_after?: number | null;
+};
+
+export type KhataRepaymentResult = {
+  receipt_id?: string | null;
+  receipt_number?: string | null;
+  customer_name?: string | null;
+  amount?: number | null;
+  payment_mode?: string | null;
+  previous_outstanding?: number | null;
+  new_outstanding?: number | null;
+  receipt_pdf_url?: string | null;
+  created_at?: string | null;
+};
+
+export type KhataRemindResult = {
+  channel?: string | null;
+  template?: string | null;
+  sent_to?: string | null;
+  outstanding_amount?: number | null;
+  message_id?: string | null;
+  sent_at?: string | null;
+};
+
+export type OfferKpi = {
+  active_count?: number | null;
+  total_redemptions?: number | null;
+};
+
+export type OfferRow = {
+  offer_id: string;
+  title?: string | null;
+  coupon_code?: string | null;
+  discount_type?: DiscountType | string | null;
+  discount_value?: number | null;
+  applies_to?: OfferAppliesTo | string | null;
+  category_names?: string[] | null;
+  is_online?: boolean | null;
+  is_counter?: boolean | null;
+  valid_from?: string | null;
+  valid_until?: string | null;
+  max_redemptions?: number | null;
+  total_redemptions?: number | null;
+  is_active?: boolean | null;
+  is_expired?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type OfferWrite = {
+  title: string;
+  coupon_code?: string;
+  discount_type: DiscountType;
+  discount_value: number;
+  applies_to: OfferAppliesTo;
+  category_ids?: string[];
+  product_ids?: string[];
+  is_online?: boolean;
+  is_counter?: boolean;
+  valid_from: string;
+  valid_until: string;
+  max_redemptions?: number;
+};
+
+export type OfferPatch = Partial<OfferWrite>;
+
+export type OfferToggleResult = {
+  offer_id?: string | null;
+  is_active?: boolean | null;
+  toggled_at?: string | null;
+};
+
+export type OfferDeleteResult = {
+  offer_id?: string | null;
+  action?: OfferDeleteAction | string | null;
+  message?: string | null;
+  valid_until?: string | null;
+};
+
+export type OfferValidateQuery = {
+  coupon_code: string;
+  cart_total: number;
+  product_ids?: string[];
+};
+
+export type OfferValidateResult = {
+  is_valid?: boolean | null;
+  offer_id?: string | null;
+  title?: string | null;
+  discount_type?: string | null;
+  discount_value?: number | null;
+  discount_amount?: number | null;
+  applies_to_description?: string | null;
+  expires_on?: string | null;
+  error_code?: string | null;
+  message?: string | null;
+};
+
+export type OffersListQuery = {
+  page?: number;
+  limit?: number;
+  status?: OfferStatusFilter | string;
+};
+
 export type BillingCommand =
   | { screen: 'invoices'; action: 'load'; values?: InvoiceListQuery }
   | { screen: 'invoices'; action: 'exportExcel'; values?: InvoiceListQuery }
@@ -270,7 +476,46 @@ export type BillingCommand =
         reference_number?: string;
         note?: string;
       };
-    };
+    }
+  | { screen: 'khata'; action: 'load'; values?: KhataListQuery }
+  | { screen: 'khata'; action: 'loadHistory'; values?: KhataHistoryQuery }
+  | { screen: 'khata'; action: 'exportExcel'; values?: KhataHistoryQuery }
+  | {
+      screen: 'khata-detail';
+      action: 'load';
+      values: { customerId: string };
+    }
+  | {
+      screen: 'khata-detail';
+      action: 'repay';
+      values: {
+        customerId: string;
+        amount: number;
+        payment_mode: RepayMode;
+        note?: string;
+        reference_number?: string;
+        idempotencyKey?: string;
+      };
+    }
+  | {
+      screen: 'khata-detail';
+      action: 'remind';
+      values: {
+        customerId: string;
+        channel: RemindChannel;
+        message_template: RemindTemplate;
+      };
+    }
+  | { screen: 'offers'; action: 'load'; values?: OffersListQuery }
+  | { screen: 'offers'; action: 'create'; values: OfferWrite }
+  | {
+      screen: 'offers';
+      action: 'patch';
+      values: { offerId: string } & OfferPatch;
+    }
+  | { screen: 'offers'; action: 'toggle'; values: { offerId: string } }
+  | { screen: 'offers'; action: 'delete'; values: { offerId: string } }
+  | { screen: 'offers'; action: 'validate'; values: OfferValidateQuery };
 
 export type BillingSubmitSuccess = {
   ok: true;
@@ -283,6 +528,19 @@ export type BillingSubmitSuccess = {
   summary?: SalesSummary | null;
   period_summary?: SalesPeriodSummary | null;
   markPaid?: MarkPaidResult | null;
+  kpi?: KhataKpi | OfferKpi | null;
+  aging?: KhataAging | null;
+  customers?: KhataCustomerRow[];
+  khata?: KhataDetail | null;
+  repayments?: KhataPaymentRow[];
+  period_total_collected?: number | null;
+  repayment?: KhataRepaymentResult | null;
+  remind?: KhataRemindResult | null;
+  offers?: OfferRow[];
+  offer?: OfferRow | null;
+  offerToggle?: OfferToggleResult | null;
+  offerDelete?: OfferDeleteResult | null;
+  offerValidate?: OfferValidateResult | null;
   meta?: PageMeta;
   downloaded?: boolean;
 };
@@ -303,7 +561,10 @@ export type BillingFeatureData = {
   plan?: PlanCode | null;
   canPatchSettings?: boolean;
   canMarkPaid?: boolean;
+  canRemind?: boolean;
+  canMutateOffers?: boolean;
   invoiceId?: string | null;
+  customerId?: string | null;
   errors?: Record<string, string>;
   formError?: string;
   busy?: boolean;
@@ -341,12 +602,32 @@ export function isStaffCannotMarkPaid(code: unknown): boolean {
   return code === 'STAFF_CANNOT_MARK_PAID';
 }
 
+export function isCustomerNotFound(code: unknown): boolean {
+  return code === 'CUSTOMER_NOT_FOUND';
+}
+
+export function isStaffCannotRemind(code: unknown): boolean {
+  return code === 'STAFF_CANNOT_REMIND';
+}
+
+export function isOfferNotFound(code: unknown): boolean {
+  return code === 'OFFER_NOT_FOUND';
+}
+
 export function isPlanFeatureLocked(code: unknown): boolean {
   return code === 'PLAN_FEATURE_LOCKED' || code === 'MODULE_NOT_IN_PLAN';
 }
 
 export function billingLockCopy(): string {
   return 'Billing is not included in the current plan.';
+}
+
+export function khataLockCopy(): string {
+  return 'Khata requires the Starter plan.';
+}
+
+export function offersLockCopy(): string {
+  return 'Offers require the Growth plan.';
 }
 
 export function formatInr(value: unknown): string {
@@ -363,5 +644,25 @@ export function formatInr(value: unknown): string {
 export const SHARE_CHANNELS: ShareChannel[] = ['WHATSAPP', 'SMS', 'EMAIL'];
 
 export const MARK_PAID_MODES: MarkPaidMode[] = ['CASH', 'UPI', 'CARD'];
+
+export const REPAY_MODES: RepayMode[] = ['CASH', 'UPI', 'CARD'];
+
+export const REMIND_CHANNELS: RemindChannel[] = ['WHATSAPP', 'SMS'];
+
+export const REMIND_TEMPLATES: RemindTemplate[] = ['POLITE', 'FIRM'];
+
+export const DISCOUNT_TYPES: DiscountType[] = ['PERCENTAGE', 'FLAT_RS'];
+
+export const OFFER_APPLIES_TO: OfferAppliesTo[] = [
+  'ALL',
+  'CATEGORY',
+  'PRODUCT',
+];
+
+export const OFFER_STATUS_FILTERS: OfferStatusFilter[] = [
+  'ACTIVE',
+  'EXPIRED',
+  'ALL',
+];
 
 export const INVOICE_TEMPLATES = ['MODERN', 'MINIMAL', 'THERMAL'] as const;
