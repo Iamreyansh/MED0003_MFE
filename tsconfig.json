@@ -32,6 +32,9 @@
       "path": "./packages/rx-contract"
     },
     {
+      "path": "./packages/finance-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -87,6 +90,9 @@
     },
     {
       "path": "./apps/orders"
+    },
+    {
+      "path": "./apps/finance"
     }
   ]
 }

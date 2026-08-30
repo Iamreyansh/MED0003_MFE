@@ -130,6 +130,16 @@
       "port": 5112,
       "domain": "orders.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "finance",
+      "package": "@medmate/finance",
+      "path": "apps/finance",
+      "federationName": "finance",
+      "expose": "./Mfe",
+      "port": 5113,
+      "domain": "finance.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }
