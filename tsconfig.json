@@ -26,6 +26,9 @@
       "path": "./packages/procurement-contract"
     },
     {
+      "path": "./packages/pos-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -72,6 +75,9 @@
     },
     {
       "path": "./apps/procurement"
+    },
+    {
+      "path": "./apps/pos"
     }
   ]
 }

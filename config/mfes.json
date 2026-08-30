@@ -90,6 +90,16 @@
       "port": 5108,
       "domain": "procurement.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "pos",
+      "package": "@medmate/pos",
+      "path": "apps/pos",
+      "federationName": "pos",
+      "expose": "./Mfe",
+      "port": 5109,
+      "domain": "pos.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }
