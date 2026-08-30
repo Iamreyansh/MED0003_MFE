@@ -220,6 +220,34 @@ importers:
         specifier: 'catalog:'
         version: 3.2.7(@types/node@26.2.0)(jiti@2.7.0)(jsdom@26.1.0)(lightningcss@1.32.0)(yaml@2.9.0)
 
+  apps/analytics:
+    dependencies:
+      '@medmate/analytics-contract':
+        specifier: workspace:*
+        version: link:../../packages/analytics-contract
+      '@medmate/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@medmate/mfe-kit':
+        specifier: workspace:*
+        version: link:../../packages/mfe-kit
+      '@medmate/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      '@medmate/playwright-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/playwright-config
+      '@medmate/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@medmate/vite-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vite-config
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vitest-config
+
   apps/auth:
     dependencies:
       '@medmate/auth-contract':
@@ -586,6 +614,15 @@ importers:
       '@medmate/vitest-config':
         specifier: workspace:*
         version: link:../../packages/tooling/vitest-config
+
+  packages/analytics-contract:
+    devDependencies:
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../tooling/vitest-config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
 
   packages/auth-contract:
     devDependencies:

@@ -35,6 +35,9 @@
       "path": "./packages/finance-contract"
     },
     {
+      "path": "./packages/analytics-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -93,6 +96,9 @@
     },
     {
       "path": "./apps/finance"
+    },
+    {
+      "path": "./apps/analytics"
     }
   ]
 }
