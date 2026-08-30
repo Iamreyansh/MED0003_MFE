@@ -7,6 +7,7 @@ import {
   SCREEN_COPY,
   storefrontStatusLabel,
 } from '../lib/copy';
+import { NotificationsScreen } from '../ui/notifications';
 import { ProfileScreen } from '../ui/profile';
 import { RolesScreen } from '../ui/roles';
 import { PageHeader } from '../ui/shared/page-header';
@@ -43,6 +44,11 @@ export function SettingsLayout({ data }: SettingsMfeProps) {
             feature.pharmacyName || data.context.pharmacyId || 'this pharmacy'
           }
           onEmit={data.capabilities?.events?.emit}
+        />
+      ) : feature.screen === 'notifications' ? (
+        <NotificationsScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
         />
       ) : (
         <RolesScreen

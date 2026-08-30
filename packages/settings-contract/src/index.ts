@@ -1,4 +1,9 @@
-export const SETTINGS_SCREENS = ['profile', 'storefront', 'roles'] as const;
+export const SETTINGS_SCREENS = [
+  'profile',
+  'storefront',
+  'roles',
+  'notifications',
+] as const;
 
 export type SettingsScreen = (typeof SETTINGS_SCREENS)[number];
 
@@ -184,6 +189,29 @@ export type CreateRoleValues = {
   permissions: string[];
 };
 
+export type PreferenceToggle = {
+  enabled: boolean;
+  can_disable: boolean;
+  status?: string;
+};
+
+export type NotificationPreferencesPayload = {
+  pharmacy_id?: string;
+  channels: Record<string, PreferenceToggle>;
+  categories: Record<string, PreferenceToggle>;
+  updated_at?: string;
+};
+
+export type NotificationPreferencesSavePayload = {
+  updated: boolean;
+  updated_at?: string;
+};
+
+export type NotificationPreferencesPatchValues = {
+  channels?: Record<string, boolean>;
+  categories?: Record<string, boolean>;
+};
+
 export const ROLE_PERMISSION_RESOURCES = [
   'orders',
   'inventory',
@@ -215,6 +243,12 @@ export type SettingsCommand =
       screen: 'roles';
       action: 'savePermissions';
       values: { id: string; permissions: string[] };
+    }
+  | { screen: 'notifications'; action: 'load' }
+  | {
+      screen: 'notifications';
+      action: 'save';
+      values: NotificationPreferencesPatchValues;
     };
 
 export type SettingsSubmitSuccess = {
@@ -230,6 +264,8 @@ export type SettingsSubmitSuccess = {
   createdRole?: PharmacyRoleCreated;
   rolePermissions?: RolePermissionsPayload;
   savedPermissions?: RolePermissionsSavePayload;
+  preferences?: NotificationPreferencesPayload;
+  savedPreferences?: NotificationPreferencesSavePayload;
 };
 
 export type SettingsSubmitFailure = {

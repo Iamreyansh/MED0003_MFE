@@ -16,6 +16,11 @@ export const SCREEN_COPY: Record<
     title: 'Roles',
     helper: 'Define custom permission packs. System roles stay read-only.',
   },
+  notifications: {
+    title: 'Notifications',
+    helper:
+      'Choose which alerts this pharmacy receives. Only channels Core returns.',
+  },
 };
 
 export function rootTestId(screen: SettingsScreen): string {
@@ -127,4 +132,41 @@ export const ROLES_COPY = {
 
 export function assignedStaffLabel(count: number): string {
   return `${count} staff`;
+}
+
+export const NOTIFICATIONS_COPY = {
+  channelsTitle: 'Channels',
+  channelsHint: 'Delivery paths Core returned for this pharmacy.',
+  categoriesTitle: 'Alert types',
+  categoriesHint: 'Turn off optional alerts. Mandatory types stay on.',
+  save: 'Save preferences',
+  staffView: 'Staff can view preferences. Only the owner can change them.',
+  dirtyLeave: 'Notification preference changes have not been saved.',
+  unavailable: 'This channel is not available.',
+  mandatory: 'This alert cannot be turned off.',
+  empty: 'No notification preferences were returned for this pharmacy.',
+  loadError: 'Unable to load notification preferences.',
+  forbidden: 'You do not have permission to do that.',
+} as const;
+
+const PREFERENCE_LABELS: Record<string, string> = {
+  push: 'Push',
+  sms: 'SMS',
+  whatsapp: 'WhatsApp',
+  email: 'Email',
+  order_alerts: 'Order alerts',
+  settlement_updates: 'Settlement updates',
+  kyc_updates: 'KYC updates',
+  low_stock_alerts: 'Low stock alerts',
+  compliance_reminders: 'Compliance reminders',
+};
+
+export function preferenceLabel(key: string): string {
+  const known = PREFERENCE_LABELS[key];
+  if (known) {
+    return known;
+  }
+  return key
+    .replace(/_/g, ' ')
+    .replace(/^\w/, (letter) => letter.toUpperCase());
 }

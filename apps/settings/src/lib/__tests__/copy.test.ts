@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   assignedStaffLabel,
   KYC_PENDING_STATUSES,
+  NOTIFICATIONS_COPY,
+  preferenceLabel,
   PROFILE_NAV,
   profileStatusLabel,
   ROLES_COPY,
@@ -17,7 +19,13 @@ describe('settings copy', () => {
     expect(rootTestId('profile')).toBe('settings-profile-page');
     expect(rootTestId('storefront')).toBe('settings-storefront-page');
     expect(rootTestId('roles')).toBe('settings-roles-page');
+    expect(rootTestId('notifications')).toBe('settings-notifications-page');
     expect(SCREEN_COPY.roles.title).toBe('Roles');
+    expect(SCREEN_COPY.notifications.title).toBe('Notifications');
+    expect(preferenceLabel('sms')).toBe('SMS');
+    expect(preferenceLabel('order_alerts')).toBe('Order alerts');
+    expect(preferenceLabel('custom_digest')).toBe('Custom digest');
+    expect(NOTIFICATIONS_COPY.save).toBe('Save preferences');
     expect(ROLES_COPY.kpiSystem).toBe('System roles');
     expect(ROLES_COPY.emptyCustom).toMatch(/custom roles/i);
     expect(assignedStaffLabel(0)).toBe('0 staff');

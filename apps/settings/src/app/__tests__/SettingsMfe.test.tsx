@@ -123,5 +123,19 @@ describe('SettingsLayout', () => {
     );
     expect(await screen.findByTestId('settings-roles-page')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Roles' })).toBeTruthy();
+    rerender(
+      <SettingsMfe
+        data={data(
+          feature('notifications', async () => ({
+            ok: true,
+            preferences: { channels: {}, categories: {} },
+          })),
+        )}
+      />,
+    );
+    expect(
+      await screen.findByTestId('settings-notifications-page'),
+    ).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Notifications' })).toBeTruthy();
   });
 });

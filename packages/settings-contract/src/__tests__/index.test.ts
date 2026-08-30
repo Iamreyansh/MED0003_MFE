@@ -23,8 +23,10 @@ describe('settings-contract', () => {
   it('recognises screens', () => {
     expect(SETTINGS_SCREENS).toContain('profile');
     expect(SETTINGS_SCREENS).toContain('roles');
+    expect(SETTINGS_SCREENS).toContain('notifications');
     expect(isSettingsScreen('storefront')).toBe(true);
     expect(isSettingsScreen('roles')).toBe(true);
+    expect(isSettingsScreen('notifications')).toBe(true);
     expect(isSettingsScreen('nope')).toBe(false);
     expect(isSettingsScreen(1)).toBe(false);
     expect(STOREFRONT_EVENT).toBe('pharmacy.storefront');
