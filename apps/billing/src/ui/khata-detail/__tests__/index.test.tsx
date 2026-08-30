@@ -136,7 +136,9 @@ describe('KhataDetailScreen', () => {
         )}
       />,
     );
-    expect(await screen.findByTestId('khata-unpaid')).toHaveTextContent('INV-X');
+    expect(await screen.findByTestId('khata-unpaid')).toHaveTextContent(
+      'INV-X',
+    );
     expect(screen.getByTestId('khata-ledger')).toHaveTextContent('CREDIT');
     expect(screen.getByTestId('khata-outstanding')).toHaveTextContent('1,200');
     await user.click(screen.getByRole('button', { name: 'Record repayment' }));

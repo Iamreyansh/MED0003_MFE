@@ -120,6 +120,16 @@
       "port": 5111,
       "domain": "rx.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "orders",
+      "package": "@medmate/orders",
+      "path": "apps/orders",
+      "federationName": "orders",
+      "expose": "./Mfe",
+      "port": 5112,
+      "domain": "orders.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

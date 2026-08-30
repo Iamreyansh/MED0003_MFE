@@ -348,18 +348,37 @@ cmd_policy() {
   node "${ROOT}/scripts/tf-policy.mjs" "$@"
 }
 
-cmd_affected() {
-  local base_ref="${1:-origin/main}"
-  local stacks='["shared","staging","production"]'
-  local changed include
+git_changed_from() {
+  local base="${1}"
+  git -C "${ROOT}" cat-file -e "${base}^{commit}" 2>/dev/null || return 1
+  git -C "${ROOT}" diff --name-only "${base}" HEAD
+}
 
-  if ! git -C "${ROOT}" rev-parse --verify "${base_ref}" >/dev/null 2>&1; then
-    jq -cn --argjson stacks "${stacks}" '{include: $stacks | map({stack: .})}'
-    return 0
+cmd_affected() {
+  local requested=""
+  local stacks='["shared","staging","production"]'
+  local changed="" resolved="" include
+
+  if [[ $# -lt 1 ]]; then
+    requested="origin/main"
+  else
+    requested="${1}"
   fi
 
-  # Two-dot: files in HEAD that differ from the previous SHA (push before).
-  changed="$(git -C "${ROOT}" diff --name-only "${base_ref}" HEAD || true)"
+  if [[ -n "${requested}" && "${requested}" != "0000000000000000000000000000000000000000" ]]; then
+    if changed="$(git_changed_from "${requested}")"; then
+      resolved="${requested}"
+    fi
+  fi
+  if [[ -z "${resolved}" ]]; then
+    if changed="$(git_changed_from "HEAD~1")"; then
+      resolved="HEAD~1"
+    else
+      jq -cn --argjson stacks "${stacks}" '{include: $stacks | map({stack: .})}'
+      return 0
+    fi
+  fi
+  echo "Affected Terraform stacks compared against ${resolved}" >&2
   include='[]'
 
   add_stack() {

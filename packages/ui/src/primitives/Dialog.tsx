@@ -82,7 +82,7 @@ export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
           ref={ref}
           data-slot="dialog-content"
           className={cn(
-            'fixed top-1/2 left-1/2 z-30 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-mm border border-mm-border bg-mm-surface p-4 font-mm text-mm-text shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mm-focus',
+            'fixed top-1/2 left-1/2 z-30 max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-mm border border-mm-border bg-mm-surface p-4 font-mm text-mm-text shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mm-focus',
             className,
           )}
           {...props}

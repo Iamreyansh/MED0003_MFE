@@ -463,20 +463,44 @@ cmd_logs() {
   echo "Uploaded ${uploaded} path(s) to ${dest}"
 }
 
+# Three-dot name-only diff vs HEAD. Fails if base is not a commit we can compare.
+git_changed_since() {
+  local base="${1}"
+  git -C "${ROOT}" cat-file -e "${base}^{commit}" 2>/dev/null || return 1
+  git -C "${ROOT}" diff --name-only "${base}...HEAD"
+}
+
 cmd_affected() {
-  local base_ref="${1:-origin/main}"
-  local catalog changed shared_hit=0
+  local requested=""
+  local catalog changed="" resolved="" shared_hit=0
   local names=()
   local row name path filter
 
-  catalog="$(cat "${ROOT}/config/mfes.json")"
-
-  if ! git -C "${ROOT}" rev-parse --verify "${base_ref}" >/dev/null 2>&1; then
-    node "${ROOT}/scripts/catalog.mjs" matrix
-    return 0
+  if [[ $# -lt 1 ]]; then
+    requested="origin/main"
+  else
+    requested="${1}"
   fi
 
-  changed="$(git -C "${ROOT}" diff --name-only "${base_ref}...HEAD" || true)"
+  catalog="$(cat "${ROOT}/config/mfes.json")"
+
+  # Force-push leaves github.event.before as a discarded SHA. Do not treat a
+  # failed compare as "nothing changed" (that skips every deploy job).
+  if [[ -n "${requested}" && "${requested}" != "0000000000000000000000000000000000000000" ]]; then
+    if changed="$(git_changed_since "${requested}")"; then
+      resolved="${requested}"
+    fi
+  fi
+  if [[ -z "${resolved}" ]]; then
+    if changed="$(git_changed_since "HEAD~1")"; then
+      resolved="HEAD~1"
+    else
+      node "${ROOT}/scripts/catalog.mjs" matrix
+      return 0
+    fi
+  fi
+  echo "Affected MFEs compared against ${resolved}" >&2
+
   if echo "${changed}" | grep -E '^(packages/|config/|scripts/|infra/|\.github/|pnpm-lock\.yaml|package\.json|turbo\.json|pnpm-workspace.yaml|eslint.config.js|tsconfig.json)' >/dev/null; then
     shared_hit=1
   fi

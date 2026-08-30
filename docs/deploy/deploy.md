@@ -29,6 +29,10 @@ GitHub → Actions → **Rollback MFE** → environment, MFE name, previous SHA.
 
 This pulls the immutable artifact and runs `./scripts/release.sh promote` (full dist, not manifest-only). Failed production smoke automatically restores the previous known-good SHA from SSM and still fails the workflow.
 
+## Affected matrix
+
+Classify diffs `github.event.before` against `HEAD`. If that SHA is missing (force-push / amend), it falls back to `HEAD~1`, then to every catalogued MFE. It must not fall back to `origin/main` on `main` — that compare is empty and skips build, PDT, and production.
+
 ## CI
 
 PR workflow `.github/workflows/ci.yml` is the quality gate. The required check name is `ci-success`. Release workflow does not re-run lint/unit/e2e.

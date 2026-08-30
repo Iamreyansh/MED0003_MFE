@@ -276,5 +276,29 @@ describe('RacksScreen', () => {
     expect(await screen.findByTestId('racks-form-error')).toHaveTextContent(
       'VALIDATION_ERROR',
     );
+
+    cleanup();
+    const printFail = racksSubmit({
+      printLabels: async () => ({ ok: false, formError: 'Printer offline' }),
+    });
+    render(<InventoryMfe data={data(feature('racks', printFail))} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Print labels' }),
+    );
+    expect(await screen.findByTestId('racks-form-error')).toHaveTextContent(
+      'Printer offline',
+    );
+
+    cleanup();
+    const printCode = racksSubmit({
+      printLabels: async () => ({ ok: false, code: 'FORBIDDEN' }),
+    });
+    render(<InventoryMfe data={data(feature('racks', printCode))} />);
+    await user.click(
+      await screen.findByRole('button', { name: 'Print labels' }),
+    );
+    expect(await screen.findByTestId('racks-form-error')).toHaveTextContent(
+      'FORBIDDEN',
+    );
   });
 });

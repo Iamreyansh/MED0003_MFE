@@ -178,9 +178,9 @@ describe('OffersScreen', () => {
     await user.type(screen.getByLabelText('Coupon code'), 'AB12CD');
     await user.type(screen.getByLabelText('Cart total'), '10');
     await user.click(screen.getByRole('button', { name: 'Check coupon' }));
-    expect(await screen.findByTestId('offer-validate-result')).toHaveTextContent(
-      /not valid/i,
-    );
+    expect(
+      await screen.findByTestId('offer-validate-result'),
+    ).toHaveTextContent(/not valid/i);
 
     cleanup();
     render(

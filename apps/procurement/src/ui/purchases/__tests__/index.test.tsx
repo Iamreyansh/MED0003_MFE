@@ -312,6 +312,18 @@ describe('PurchasesScreen', () => {
     await user.type(screen.getAllByLabelText('Invoice date')[1]!, '2026-07-22');
     const input = screen.getByLabelText('Invoice CSV') as HTMLInputElement;
     await user.upload(input, new File(['a'], 'ok.csv', { type: 'text/csv' }));
+    await user.click(screen.getByRole('button', { name: 'Upload preview' }));
+    await waitFor(() => {
+      expect(
+        onSubmit.mock.calls.some((call) => {
+          const command = call[0];
+          return (
+            command.action === 'importCsv' &&
+            command.values.distributor_id === 'd9'
+          );
+        }),
+      ).toBe(true);
+    });
     Object.defineProperty(input, 'files', { value: null });
     input.dispatchEvent(new Event('change', { bubbles: true }));
 

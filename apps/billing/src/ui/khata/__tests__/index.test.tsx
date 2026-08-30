@@ -214,12 +214,15 @@ describe('KhataScreen', () => {
     render(
       <BillingMfe
         data={data(
-          feature('khata', khataSubmit({
-            load: async () => ({
-              ok: true,
-              customers: [{ customer_id: 'cust-4', name: 'Bare' }],
+          feature(
+            'khata',
+            khataSubmit({
+              load: async () => ({
+                ok: true,
+                customers: [{ customer_id: 'cust-4', name: 'Bare' }],
+              }),
             }),
-          })),
+          ),
         )}
       />,
     );
