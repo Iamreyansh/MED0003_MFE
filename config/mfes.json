@@ -150,6 +150,16 @@
       "port": 5114,
       "domain": "analytics.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "support",
+      "package": "@medmate/support",
+      "path": "apps/support",
+      "federationName": "support",
+      "expose": "./Mfe",
+      "port": 5115,
+      "domain": "support.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

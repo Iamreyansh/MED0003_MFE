@@ -38,6 +38,9 @@
       "path": "./packages/analytics-contract"
     },
     {
+      "path": "./packages/support-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -99,6 +102,9 @@
     },
     {
       "path": "./apps/analytics"
+    },
+    {
+      "path": "./apps/support"
     }
   ]
 }
