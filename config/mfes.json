@@ -70,6 +70,16 @@
       "port": 5106,
       "domain": "catalogue.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "inventory",
+      "package": "@medmate/inventory",
+      "path": "apps/inventory",
+      "federationName": "inventory",
+      "expose": "./Mfe",
+      "port": 5107,
+      "domain": "inventory.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }

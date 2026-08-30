@@ -56,46 +56,17 @@ resource "aws_cloudfront_response_headers_policy" "cors" {
   }
 }
 
-resource "aws_cloudfront_cache_policy" "immutable" {
-  name        = "${var.name_prefix}-immutable"
-  default_ttl = 31536000
-  max_ttl     = 31536000
-  min_ttl     = 31536000
-
-  parameters_in_cache_key_and_forwarded_to_origin {
-    cookies_config {
-      cookie_behavior = "none"
-    }
-    headers_config {
-      header_behavior = "none"
-    }
-    query_strings_config {
-      query_string_behavior = "none"
-    }
-    enable_accept_encoding_brotli = true
-    enable_accept_encoding_gzip   = true
-  }
+# AWS managed policies (account-wide, no custom-quota use). Custom policies
+# per MFE exhausted the account Cache Policies limit (20) once catalogue and
+# inventory were added. Origin Cache-Control from scripts/release.sh still
+# governs TTL: hashed assets max-age=31536000, manifests max-age=0.
+# https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+data "aws_cloudfront_cache_policy" "immutable" {
+  name = "Managed-CachingOptimized"
 }
 
-resource "aws_cloudfront_cache_policy" "manifest" {
-  name        = "${var.name_prefix}-manifest"
-  default_ttl = 0
-  max_ttl     = 60
-  min_ttl     = 0
-
-  parameters_in_cache_key_and_forwarded_to_origin {
-    cookies_config {
-      cookie_behavior = "none"
-    }
-    headers_config {
-      header_behavior = "none"
-    }
-    query_strings_config {
-      query_string_behavior = "none"
-    }
-    enable_accept_encoding_brotli = true
-    enable_accept_encoding_gzip   = true
-  }
+data "aws_cloudfront_cache_policy" "manifest" {
+  name = "Managed-CachingDisabled"
 }
 
 resource "aws_cloudfront_distribution" "assets" {
@@ -120,7 +91,7 @@ resource "aws_cloudfront_distribution" "assets" {
     target_origin_id           = "s3-${var.name}"
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
-    cache_policy_id            = aws_cloudfront_cache_policy.immutable.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.immutable.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
   }
 
@@ -131,7 +102,7 @@ resource "aws_cloudfront_distribution" "assets" {
     target_origin_id           = "s3-${var.name}"
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
-    cache_policy_id            = aws_cloudfront_cache_policy.manifest.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
   }
 
@@ -142,7 +113,7 @@ resource "aws_cloudfront_distribution" "assets" {
     target_origin_id           = "s3-${var.name}"
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
-    cache_policy_id            = aws_cloudfront_cache_policy.manifest.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
   }
 
@@ -153,7 +124,7 @@ resource "aws_cloudfront_distribution" "assets" {
     target_origin_id           = "s3-${var.name}"
     viewer_protocol_policy     = "redirect-to-https"
     compress                   = true
-    cache_policy_id            = aws_cloudfront_cache_policy.manifest.id
+    cache_policy_id            = data.aws_cloudfront_cache_policy.manifest.id
     response_headers_policy_id = aws_cloudfront_response_headers_policy.cors.id
   }
 

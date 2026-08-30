@@ -20,6 +20,9 @@
       "path": "./packages/catalogue-contract"
     },
     {
+      "path": "./packages/inventory-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -60,6 +63,9 @@
     },
     {
       "path": "./apps/catalogue"
+    },
+    {
+      "path": "./apps/inventory"
     }
   ]
 }

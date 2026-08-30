@@ -276,6 +276,37 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tooling/vitest-config
 
+  apps/inventory:
+    dependencies:
+      '@medmate/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@medmate/inventory-contract':
+        specifier: workspace:*
+        version: link:../../packages/inventory-contract
+      '@medmate/mfe-kit':
+        specifier: workspace:*
+        version: link:../../packages/mfe-kit
+      '@medmate/subscription-contract':
+        specifier: workspace:*
+        version: link:../../packages/subscription-contract
+      '@medmate/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      '@medmate/playwright-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/playwright-config
+      '@medmate/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@medmate/vite-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vite-config
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vitest-config
+
   apps/onboarding:
     dependencies:
       '@medmate/contracts':
@@ -429,6 +460,15 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../tooling/vitest-config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
+  packages/inventory-contract:
     devDependencies:
       '@medmate/vitest-config':
         specifier: workspace:*
