@@ -422,6 +422,34 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tooling/vitest-config
 
+  apps/rx:
+    dependencies:
+      '@medmate/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@medmate/mfe-kit':
+        specifier: workspace:*
+        version: link:../../packages/mfe-kit
+      '@medmate/rx-contract':
+        specifier: workspace:*
+        version: link:../../packages/rx-contract
+      '@medmate/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+    devDependencies:
+      '@medmate/playwright-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/playwright-config
+      '@medmate/test-utils':
+        specifier: workspace:*
+        version: link:../../packages/test-utils
+      '@medmate/vite-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vite-config
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../../packages/tooling/vitest-config
+
   apps/settings:
     dependencies:
       '@medmate/contracts':
@@ -614,6 +642,15 @@ importers:
         version: 5.8.3
 
   packages/procurement-contract:
+    devDependencies:
+      '@medmate/vitest-config':
+        specifier: workspace:*
+        version: link:../tooling/vitest-config
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
+  packages/rx-contract:
     devDependencies:
       '@medmate/vitest-config':
         specifier: workspace:*

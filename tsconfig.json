@@ -29,6 +29,9 @@
       "path": "./packages/pos-contract"
     },
     {
+      "path": "./packages/rx-contract"
+    },
+    {
       "path": "./packages/ui"
     },
     {
@@ -78,6 +81,9 @@
     },
     {
       "path": "./apps/pos"
+    },
+    {
+      "path": "./apps/rx"
     }
   ]
 }

@@ -33,13 +33,16 @@ test.describe('Billing MFE standalone', () => {
 
   test('opens khata repay amount and named offer toggle', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'khata' }).click();
+    await page.getByRole('button', { name: 'khata', exact: true }).click();
     await expect(page.getByTestId('billing-khata-page')).toBeVisible();
     await expect(page.getByTestId('khata-table')).toBeVisible();
     await page.getByRole('button', { name: 'khata-detail' }).click();
     await expect(page.getByTestId('billing-khata-detail-page')).toBeVisible();
     await page.getByRole('button', { name: 'Record repayment' }).click();
+    await expect(page.getByTestId('khata-repay-dialog')).toBeVisible();
     await expect(page.getByLabel('Amount')).toBeVisible();
+    await page.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page.getByTestId('khata-repay-dialog')).toBeHidden();
     await page.getByRole('button', { name: 'offers' }).click();
     await expect(page.getByTestId('billing-offers-page')).toBeVisible();
     await expect(

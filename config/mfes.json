@@ -110,6 +110,16 @@
       "port": 5110,
       "domain": "billing.mfe.nammamedmate.com",
       "owner": "platform"
+    },
+    {
+      "name": "rx",
+      "package": "@medmate/rx",
+      "path": "apps/rx",
+      "federationName": "rx",
+      "expose": "./Mfe",
+      "port": 5111,
+      "domain": "rx.mfe.nammamedmate.com",
+      "owner": "platform"
     }
   ]
 }
