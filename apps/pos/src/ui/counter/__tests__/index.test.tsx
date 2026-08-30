@@ -12,6 +12,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   CART_RESULT,
   EMPTY_CART,
+  LINED_CART,
   LINED_RESULT,
   data,
   feature,
@@ -221,7 +222,10 @@ describe('CounterScreen', () => {
         ok: true,
         cart: {
           cart_id: 'cart-1',
-          items: [{ item_id: 'item-1', product_id: 'prod-1' }],
+          items: [
+            { item_id: 'item-1', product_id: 'prod-1' },
+            { item_id: 'item-2', product_id: 'prod-2' },
+          ],
           grand_total: 0,
         },
       }),
@@ -233,11 +237,21 @@ describe('CounterScreen', () => {
     });
     render(<PosMfe data={data(feature(onSubmit), { capabilities: {} })} />);
     await screen.findByTestId('pos-cart-table');
-    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
-    fireEvent.change(screen.getByLabelText('Quantity'), {
+    const increases = screen.getAllByRole('button', {
+      name: 'Increase quantity',
+    });
+    const qtys = screen.getAllByLabelText('Quantity');
+    const firstIncrease = increases[0];
+    const secondIncrease = increases[1];
+    const secondQty = qtys[1];
+    if (!firstIncrease || !secondIncrease || !secondQty) {
+      throw new Error('expected two quantity steppers');
+    }
+    await user.click(firstIncrease);
+    fireEvent.change(secondQty, {
       target: { value: 'x' },
     });
-    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    await user.click(secondIncrease);
     await user.type(
       screen.getByRole('combobox', { name: 'Search products' }),
       'x',
@@ -296,6 +310,116 @@ describe('CounterScreen', () => {
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'deleteItem' }),
     );
+  });
+
+  it('steps quantity without stealing search focus and applies percent off', async () => {
+    const user = userEvent.setup();
+    const onSubmit = submit({
+      loadCart: async () => LINED_RESULT,
+      patchItem: async () => ({
+        ok: true,
+        item: {
+          item_id: 'item-1',
+          quantity: 3,
+          line_total: 72,
+          cart_grand_total: 72,
+        },
+      }),
+      applyDiscount: async () => ({
+        ok: true,
+        discount: {
+          discount_type: 'PERCENTAGE',
+          discount_value: 10,
+          discount_amount: 7.2,
+          grand_total: 64.8,
+        },
+      }),
+    });
+    render(<PosMfe data={data(feature(onSubmit))} />);
+    await screen.findByTestId('pos-cart-table');
+    const search = screen.getByRole('combobox', { name: 'Search products' });
+    const qty = screen.getByLabelText('Quantity');
+    qty.focus();
+    expect(qty).toBe(document.activeElement);
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    await waitFor(() => {
+      expect(qty).toHaveValue('3');
+    });
+    expect(qty).toBe(document.activeElement);
+    expect(search).not.toBe(document.activeElement);
+    expect(
+      onSubmit.mock.calls.filter(
+        ([command]) =>
+          command.action === 'loadCart' || command.action === 'createCart',
+      ),
+    ).toHaveLength(1);
+    await user.click(screen.getByLabelText('Percentage'));
+    await user.type(screen.getByLabelText('Discount percent'), '10%');
+    await user.click(screen.getByRole('button', { name: 'Apply discount' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('pos-grand-total')).toHaveTextContent(/64/);
+    });
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'applyDiscount',
+        values: { type: 'PERCENTAGE', value: 10 },
+      }),
+    );
+    await user.clear(screen.getByLabelText('Discount percent'));
+    await user.type(screen.getByLabelText('Discount percent'), '50');
+    await user.click(screen.getByRole('button', { name: 'Apply discount' }));
+    expect(screen.getByTestId('pos-error')).toHaveTextContent('30%');
+    expect(
+      onSubmit.mock.calls.filter(
+        ([command]) => command.action === 'applyDiscount',
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('ignores a stale qty patch and refreshes after a discount without totals', async () => {
+    const user = userEvent.setup();
+    const patches: Array<(value: PosSubmitResult) => void> = [];
+    let loads = 0;
+    const onSubmit = submit({
+      loadCart: async () => {
+        loads += 1;
+        if (loads === 1) {
+          return LINED_RESULT;
+        }
+        return {
+          ok: true,
+          cart: { ...LINED_CART, discount_amount: 4, grand_total: 44 },
+        };
+      },
+      patchItem: async () =>
+        new Promise<PosSubmitResult>((resolve) => {
+          patches.push(resolve);
+        }),
+      applyDiscount: async () => ({ ok: true }),
+    });
+    render(<PosMfe data={data(feature(onSubmit))} />);
+    await screen.findByTestId('pos-cart-table');
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    await user.click(screen.getByRole('button', { name: 'Increase quantity' }));
+    await waitFor(() => {
+      expect(patches).toHaveLength(2);
+    });
+    patches[0]?.({
+      ok: true,
+      item: { item_id: 'item-1', quantity: 3 },
+    });
+    patches[1]?.({
+      ok: true,
+      item: { item_id: 'item-1', quantity: 4, cart_grand_total: 96 },
+    });
+    await waitFor(() => {
+      expect(screen.getByLabelText('Quantity')).toHaveValue('4');
+    });
+    await user.type(screen.getByLabelText('Discount value'), '4');
+    await user.click(screen.getByRole('button', { name: 'Apply discount' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('pos-grand-total')).toHaveTextContent(/44/);
+    });
   });
 
   it('covers search, qty, discount, pay, and error branches', async () => {

@@ -116,7 +116,7 @@ export const RACKS_COPY = {
   code: 'Rack code',
   zone: 'Zone name',
   zoneRequired: 'Enter a zone name.',
-  name: 'Rack name',
+  name: 'Description',
   unlocated: 'Unlocated products',
   assign: 'Assign rack',
   rack: 'Rack',
@@ -131,7 +131,7 @@ export const RACKS_COPY = {
   save: 'Save rack',
   selectProduct: 'Select product',
   selectRack: 'Select rack',
-  startWithA1: 'Start with A1',
+  startWithA1: 'Start with A1-01',
 } as const;
 
 export function unlocatedHint(count: number): string {

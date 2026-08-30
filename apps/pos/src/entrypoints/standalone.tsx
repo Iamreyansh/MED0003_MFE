@@ -60,8 +60,9 @@ function mockSubmit(command: PosCommand, cart: PosCart): PosSubmitResult {
       item: {
         item_id: 'item-1',
         product_name: 'Crocin 500mg Tablet',
-        quantity: 1,
-        line_total: 24,
+        quantity: command.values.quantity,
+        line_total: 24 * command.values.quantity,
+        cart_grand_total: 24 * command.values.quantity,
       },
       cart: {
         ...cart,
@@ -70,11 +71,39 @@ function mockSubmit(command: PosCommand, cart: PosCart): PosSubmitResult {
             item_id: 'item-1',
             product_id: 'prod-1',
             product_name: 'Crocin 500mg Tablet',
-            quantity: 1,
-            line_total: 24,
+            quantity: command.values.quantity,
+            line_total: 24 * command.values.quantity,
           },
         ],
-        grand_total: 24,
+        grand_total: 24 * command.values.quantity,
+      },
+    };
+  }
+  if (command.action === 'patchItem') {
+    const qty = command.values.quantity ?? 1;
+    return {
+      ok: true,
+      item: {
+        item_id: command.values.item_id,
+        quantity: qty,
+        line_total: 24 * qty,
+        cart_grand_total: 24 * qty,
+      },
+    };
+  }
+  if (command.action === 'applyDiscount') {
+    const subtotal = cart.grand_total ?? 0;
+    const amount =
+      command.values.type === 'PERCENTAGE'
+        ? (subtotal * command.values.value) / 100
+        : command.values.value;
+    return {
+      ok: true,
+      discount: {
+        discount_type: command.values.type,
+        discount_value: command.values.value,
+        discount_amount: amount,
+        grand_total: Math.max(0, subtotal - amount),
       },
     };
   }
@@ -120,6 +149,34 @@ function StandaloneHarness() {
         const result = mockSubmit(command, cartRef.current);
         if (result.ok && result.cart) {
           cartRef.current = result.cart;
+          setTick((n) => n + 1);
+        }
+        if (result.ok && result.item && command.action === 'patchItem') {
+          const qty = command.values.quantity ?? 1;
+          cartRef.current = {
+            ...cartRef.current,
+            grand_total:
+              result.item.cart_grand_total ?? cartRef.current.grand_total,
+            items: (cartRef.current.items ?? []).map((line) =>
+              line.item_id === result.item?.item_id
+                ? {
+                    ...line,
+                    quantity: qty,
+                    line_total: result.item.line_total ?? line.line_total,
+                  }
+                : line,
+            ),
+          };
+          setTick((n) => n + 1);
+        }
+        if (result.ok && result.discount) {
+          cartRef.current = {
+            ...cartRef.current,
+            discount_type: result.discount.discount_type,
+            discount_value: result.discount.discount_value,
+            discount_amount: result.discount.discount_amount,
+            grand_total: result.discount.grand_total,
+          };
           setTick((n) => n + 1);
         }
         if (result.ok && result.customer) {

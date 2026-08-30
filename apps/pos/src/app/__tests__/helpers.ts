@@ -56,6 +56,8 @@ export const LINED_CART: PosCart = {
       line_total: 48,
     },
   ],
+  subtotal: 48,
+  discount_amount: 0,
   grand_total: 48,
 };
 

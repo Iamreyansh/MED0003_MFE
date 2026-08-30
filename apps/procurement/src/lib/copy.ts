@@ -86,6 +86,7 @@ export const PURCHASES_COPY = {
   create: 'Create GRN',
   importCsv: 'Import CSV',
   distributorId: 'Distributor id',
+  walkInHint: 'Uses Cash / Walk-in',
   invoiceNumber: 'Invoice number',
   invoiceDate: 'Invoice date',
   retry: 'Retry',

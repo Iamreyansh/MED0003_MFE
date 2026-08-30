@@ -3,6 +3,7 @@ import {
   PAYMENT_METHODS,
   POS_API_PATH_PREFIX,
   POS_SCREENS,
+  asRupees,
   formatInr,
   isCartStale,
   isInsufficientStock,
@@ -11,7 +12,9 @@ import {
   isPosFeatureData,
   isPosScreen,
   isPosTokenRestricted,
+  MAX_MANUAL_DISCOUNT_PCT,
   openAfterFullLoginCopy,
+  parseDiscountInput,
   parsePositiveQty,
   paymentMethodLabel,
 } from '../index';
@@ -65,10 +68,20 @@ describe('pos-contract', () => {
     expect(formatInr('x')).toBe('—');
     expect(formatInr(Number.NaN)).toBe('—');
     expect(formatInr(1300)).toMatch(/1,300/);
+    expect(formatInr('45.00')).toMatch(/45/);
+    expect(asRupees('10')).toBe(10);
+    expect(asRupees('')).toBeNull();
+    expect(asRupees({})).toBeNull();
     expect(parsePositiveQty('2')).toBe(2);
     expect(parsePositiveQty('')).toBeNull();
     expect(parsePositiveQty('0')).toBeNull();
     expect(parsePositiveQty('-1')).toBeNull();
     expect(parsePositiveQty('nope')).toBeNull();
+    expect(parseDiscountInput('10%')).toBe(10);
+    expect(parseDiscountInput(' 5 ')).toBe(5);
+    expect(parseDiscountInput('')).toBeNull();
+    expect(parseDiscountInput('0')).toBeNull();
+    expect(parseDiscountInput('%')).toBeNull();
+    expect(MAX_MANUAL_DISCOUNT_PCT).toBe(30);
   });
 });

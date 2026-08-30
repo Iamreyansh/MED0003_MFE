@@ -7,6 +7,8 @@ describe('pos copy', () => {
     expect(rootTestId('counter')).toBe('pos-counter-page');
     expect(COUNTER_COPY.emptySearch).toMatch(/no products/i);
     expect(COUNTER_COPY.confirmClear).toMatch(/clear/i);
+    expect(COUNTER_COPY.discountPercent).toMatch(/percent/i);
+    expect(COUNTER_COPY.discountCap).toMatch(/30%/);
     expect(errorText({ formError: 'Check fields' })).toBe('Check fields');
     expect(errorText({ code: 'EMPTY_CART' })).toBe('EMPTY_CART');
     expect(errorText({})).toBe('Unable to continue.');

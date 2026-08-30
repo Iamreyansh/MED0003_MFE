@@ -17,6 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Text,
   TextField,
 } from '@medmate/ui';
 import { Receipt } from 'lucide-react';
@@ -43,6 +44,7 @@ export function PurchasesScreen({
   onNavigate?: (path: string) => void;
 }) {
   const canWrite = feature.canWrite !== false;
+  const canAccessGrowth = feature.canAccessGrowth !== false;
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('');
   const [rows, setRows] = useState<GrnListRow[]>([]);
@@ -85,9 +87,11 @@ export function PurchasesScreen({
       screen: 'purchases',
       action: 'create',
       values: {
-        distributor_id: distributorId,
         invoice_number: invoiceNumber,
         invoice_date: invoiceDate,
+        ...(distributorId.trim()
+          ? { distributor_id: distributorId.trim() }
+          : {}),
       },
     });
     setBusy(false);
@@ -106,12 +110,16 @@ export function PurchasesScreen({
       {kpi ? <PurchaseSummary kpi={kpi} /> : null}
       {canWrite ? (
         <Flex gap="3" wrap align="end">
-          <TextField
-            label={PURCHASES_COPY.distributorId}
-            name="distributor_id"
-            value={distributorId}
-            onChange={(event) => setDistributorId(event.target.value)}
-          />
+          {canAccessGrowth ? (
+            <TextField
+              label={PURCHASES_COPY.distributorId}
+              name="distributor_id"
+              value={distributorId}
+              onChange={(event) => setDistributorId(event.target.value)}
+            />
+          ) : (
+            <Text data-testid="walk-in-hint">{PURCHASES_COPY.walkInHint}</Text>
+          )}
           <TextField
             label={PURCHASES_COPY.invoiceNumber}
             name="invoice_number"

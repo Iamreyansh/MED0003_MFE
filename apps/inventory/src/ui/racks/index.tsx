@@ -58,7 +58,7 @@ export function RacksScreen({ feature }: { feature: InventoryFeatureData }) {
   const [notFound, setNotFound] = useState(false);
 
   function startWithA1() {
-    setCode('A1');
+    setCode('A1-01');
   }
 
   const load = useCallback(async () => {
@@ -104,6 +104,7 @@ export function RacksScreen({ feature }: { feature: InventoryFeatureData }) {
       values: {
         rack_code: code.trim(),
         zone_name: zoneName,
+        description: name.trim() || undefined,
         name: name.trim() || undefined,
       },
     });
@@ -217,9 +218,9 @@ export function RacksScreen({ feature }: { feature: InventoryFeatureData }) {
                     <RackChip code={row.rack_code} />
                   </TableCell>
                   <TableCell>{row.zone_name ?? '—'}</TableCell>
-                  <TableCell>{row.name ?? '—'}</TableCell>
+                  <TableCell>{row.description ?? row.name ?? '—'}</TableCell>
                   <TableCell className="tabular-nums">
-                    {row.product_count ?? '—'}
+                    {row.medicine_count ?? row.product_count ?? '—'}
                   </TableCell>
                   <TableCell>
                     {canManage ? (
@@ -278,7 +279,7 @@ export function RacksScreen({ feature }: { feature: InventoryFeatureData }) {
               />
               <TextField
                 label={RACKS_COPY.name}
-                name="name"
+                name="description"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
               />
@@ -303,12 +304,23 @@ export function RacksScreen({ feature }: { feature: InventoryFeatureData }) {
                 <Button
                   type="button"
                   variant="ghost"
+                  disabled={busy}
                   onClick={() => {
-                    void feature.onSubmit({
-                      screen: 'racks',
-                      action: 'printLabels',
-                      values: { rack_codes: racks.map((row) => row.rack_code) },
-                    });
+                    void (async () => {
+                      setBusy(true);
+                      setFormError(undefined);
+                      const result = await feature.onSubmit({
+                        screen: 'racks',
+                        action: 'printLabels',
+                        values: {
+                          rack_codes: racks.map((row) => row.rack_code),
+                        },
+                      });
+                      setBusy(false);
+                      if (!result.ok) {
+                        setFormError(result.formError ?? result.code);
+                      }
+                    })();
                   }}
                 >
                   {RACKS_COPY.print}

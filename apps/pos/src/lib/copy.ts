@@ -55,6 +55,8 @@ export const COUNTER_COPY = {
   flat: 'Flat rupees',
   percent: 'Percentage',
   discountValue: 'Discount value',
+  discountPercent: 'Discount percent',
+  discountCap: 'Max 30% or ₹500.',
   applyDiscount: 'Apply discount',
   pay: 'Take payment',
   payHint: 'Stock leaves on checkout.',

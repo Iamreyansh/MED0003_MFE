@@ -20,7 +20,14 @@ import type { InventoryMfeProps } from '../contract';
 import '@medmate/ui/styles.css';
 
 const INITIAL_RACKS: RackLocation[] = [
-  { rack_code: 'A1', name: 'Counter left', zone_name: 'OTC', product_count: 3 },
+  {
+    rack_code: 'A1',
+    name: 'Counter left',
+    description: 'Counter left',
+    zone_name: 'OTC',
+    product_count: 3,
+    medicine_count: 3,
+  },
 ];
 
 function readScreen(): InventoryScreen {

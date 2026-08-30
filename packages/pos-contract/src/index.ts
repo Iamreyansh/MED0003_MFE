@@ -284,15 +284,31 @@ export function isModuleNotInPlan(code: unknown): boolean {
   return code === 'MODULE_NOT_IN_PLAN';
 }
 
+export const MAX_MANUAL_DISCOUNT_PCT = 30;
+
+export function asRupees(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    const amount = Number(value);
+    if (Number.isFinite(amount)) {
+      return amount;
+    }
+  }
+  return null;
+}
+
 export function formatInr(value: unknown): string {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
+  const amount = asRupees(value);
+  if (amount === null) {
     return '—';
   }
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(amount);
 }
 
 export function parsePositiveQty(value: string): number | null {
@@ -304,6 +320,18 @@ export function parsePositiveQty(value: string): number | null {
     return null;
   }
   return qty;
+}
+
+export function parseDiscountInput(value: string): number | null {
+  const trimmed = value.trim().replace(/%$/u, '').trim();
+  if (trimmed === '') {
+    return null;
+  }
+  const amount = Number(trimmed);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return null;
+  }
+  return amount;
 }
 
 export function paymentMethodLabel(method: PaymentMethod): string {

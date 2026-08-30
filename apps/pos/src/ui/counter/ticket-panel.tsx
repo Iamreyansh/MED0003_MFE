@@ -132,6 +132,9 @@ export function TicketPanel({
         <Separator />
 
         <Stack gap="2">
+          <Text size="sm" tone="muted">
+            {COUNTER_COPY.discountHint} {COUNTER_COPY.discountCap}
+          </Text>
           <ChoiceGroup
             legend={COUNTER_COPY.discountType}
             name="pos-discount-type"
@@ -146,7 +149,11 @@ export function TicketPanel({
           <Flex gap="2" align="end">
             <Box className="min-w-0 flex-1">
               <TextField
-                label={COUNTER_COPY.discountValue}
+                label={
+                  discountType === 'PERCENTAGE'
+                    ? COUNTER_COPY.discountPercent
+                    : COUNTER_COPY.discountValue
+                }
                 inputMode="decimal"
                 value={discountValue}
                 onChange={(event) => onDiscountValueChange(event.target.value)}

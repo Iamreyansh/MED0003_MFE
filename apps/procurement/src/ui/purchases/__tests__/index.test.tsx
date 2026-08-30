@@ -85,6 +85,16 @@ describe('PurchasesScreen', () => {
     await waitFor(() => {
       expect(onNavigate).toHaveBeenCalledWith('/purchases/grn-2');
     });
+    expect(
+      onSubmit.mock.calls.some((call) => {
+        const command = call[0];
+        return (
+          command.screen === 'purchases' &&
+          command.action === 'create' &&
+          command.values.distributor_id === 'd1'
+        );
+      }),
+    ).toBe(true);
 
     await user.click(screen.getByRole('button', { name: 'Import CSV' }));
     const file = new File(['a,b'], 'bad.csv', { type: 'text/csv' });
@@ -100,6 +110,52 @@ describe('PurchasesScreen', () => {
     await waitFor(() => {
       expect(onNavigate).toHaveBeenCalledWith('/purchases/grn-csv');
     });
+  });
+
+  it('hides the distributor UUID on Free and creates a walk-in GRN', async () => {
+    const user = userEvent.setup();
+    const onNavigate = vi.fn();
+    const onSubmit = purchasesSubmit();
+    render(
+      <ProcurementMfe
+        data={data(
+          feature('purchases', onSubmit, {
+            plan: 'FREE',
+            canAccessGrowth: false,
+          }),
+          { capabilities: { navigate: onNavigate } },
+        )}
+      />,
+    );
+    await screen.findByTestId('purchases-table');
+    expect(screen.queryByLabelText('Distributor id')).toBeNull();
+    expect(screen.getByTestId('walk-in-hint')).toHaveTextContent(
+      'Uses Cash / Walk-in',
+    );
+    await user.type(screen.getByLabelText('Invoice number'), 'INV-FREE');
+    await user.type(screen.getByLabelText('Invoice date'), '2026-07-22');
+    await user.click(screen.getByRole('button', { name: 'Create GRN' }));
+    await waitFor(() => {
+      expect(onNavigate).toHaveBeenCalledWith('/purchases/grn-2');
+    });
+    expect(
+      onSubmit.mock.calls
+        .map((call) => call[0])
+        .find(
+          (command) =>
+            command.screen === 'purchases' && command.action === 'create',
+        ),
+    ).toMatchObject({
+      values: {
+        invoice_number: 'INV-FREE',
+        invoice_date: '2026-07-22',
+      },
+    });
+    await user.click(screen.getByRole('button', { name: 'Import CSV' }));
+    expect(screen.getByTestId('csv-walk-in-hint')).toHaveTextContent(
+      'Uses Cash / Walk-in',
+    );
+    expect(screen.queryByLabelText('Distributor id')).toBeNull();
   });
 
   it('rejects oversized CSV before calling the host', async () => {

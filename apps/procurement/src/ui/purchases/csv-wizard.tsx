@@ -16,6 +16,7 @@ export function CsvWizard({
   feature: ProcurementFeatureData;
   onImported: (grnId: string) => void;
 }) {
+  const canAccessGrowth = feature.canAccessGrowth !== false;
   const [distributorId, setDistributorId] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceDate, setInvoiceDate] = useState('');
@@ -40,9 +41,11 @@ export function CsvWizard({
       action: 'importCsv',
       values: {
         file,
-        distributor_id: distributorId,
         invoice_number: invoiceNumber,
         invoice_date: invoiceDate,
+        ...(distributorId.trim()
+          ? { distributor_id: distributorId.trim() }
+          : {}),
       },
     });
     setBusy(false);
@@ -76,12 +79,18 @@ export function CsvWizard({
     <SectionBlock id="section-csv" title={CSV_COPY.title} hint={CSV_COPY.hint}>
       <Stack gap="3">
         <FormBanner message={error} testId="csv-error" />
-        <TextField
-          label={PURCHASES_COPY.distributorId}
-          name="csv_distributor_id"
-          value={distributorId}
-          onChange={(event) => setDistributorId(event.target.value)}
-        />
+        {canAccessGrowth ? (
+          <TextField
+            label={PURCHASES_COPY.distributorId}
+            name="csv_distributor_id"
+            value={distributorId}
+            onChange={(event) => setDistributorId(event.target.value)}
+          />
+        ) : (
+          <Text data-testid="csv-walk-in-hint">
+            {PURCHASES_COPY.walkInHint}
+          </Text>
+        )}
         <TextField
           label={PURCHASES_COPY.invoiceNumber}
           name="csv_invoice_number"

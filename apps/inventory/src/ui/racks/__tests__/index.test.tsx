@@ -54,7 +54,7 @@ describe('RacksScreen', () => {
     expect(await screen.findByTestId('racks-table')).toBeTruthy();
     await user.type(screen.getByLabelText('Rack code'), 'B1');
     await user.type(screen.getByLabelText('Zone name'), 'Ground');
-    await user.type(screen.getByLabelText('Rack name'), 'Back wall');
+    await user.type(screen.getByLabelText('Description'), 'Back wall');
     await user.click(screen.getByRole('button', { name: 'Create rack' }));
     await waitFor(() => {
       expect(
@@ -75,9 +75,11 @@ describe('RacksScreen', () => {
       ).toBe(true);
     });
     await user.click(screen.getByRole('button', { name: 'Print labels' }));
-    expect(
-      onSubmit.mock.calls.some((call) => call[0].action === 'printLabels'),
-    ).toBe(true);
+    await waitFor(() => {
+      expect(
+        onSubmit.mock.calls.some((call) => call[0].action === 'printLabels'),
+      ).toBe(true);
+    });
     await user.click(screen.getByRole('button', { name: 'Delete rack' }));
     expect(screen.getByTestId('rack-delete-dialog')).toBeTruthy();
     await user.keyboard('{Escape}');
@@ -114,8 +116,8 @@ describe('RacksScreen', () => {
     });
     render(<InventoryMfe data={data(feature('racks', empty))} />);
     expect(await screen.findByTestId('racks-empty')).toBeTruthy();
-    await user.click(screen.getByRole('button', { name: 'Start with A1' }));
-    expect(screen.getByLabelText('Rack code')).toHaveValue('A1');
+    await user.click(screen.getByRole('button', { name: 'Start with A1-01' }));
+    expect(screen.getByLabelText('Rack code')).toHaveValue('A1-01');
     await user.click(screen.getByRole('button', { name: 'Create rack' }));
     expect(await screen.findByText(RACKS_COPY.zoneRequired)).toBeTruthy();
     await user.type(screen.getByLabelText('Zone name'), 'Counter');
@@ -185,7 +187,9 @@ describe('RacksScreen', () => {
       />,
     );
     expect(await screen.findByTestId('racks-empty')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Start with A1' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Start with A1-01' }),
+    ).toBeNull();
 
     cleanup();
     const assignOnly = racksSubmit();

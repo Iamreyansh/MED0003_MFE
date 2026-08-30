@@ -25,6 +25,9 @@ export function QtyStepper({
         className="min-h-9 min-w-9 px-2 py-1"
         aria-label={COUNTER_COPY.decreaseQty}
         disabled={disabled}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
         onClick={() => onStep(-1)}
       >
         <Minus className="size-4" aria-hidden />
@@ -64,6 +67,9 @@ export function QtyStepper({
         className="min-h-9 min-w-9 px-2 py-1"
         aria-label={COUNTER_COPY.increaseQty}
         disabled={disabled}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
         onClick={() => onStep(1)}
       >
         <Plus className="size-4" aria-hidden />

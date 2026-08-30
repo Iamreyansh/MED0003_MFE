@@ -34,6 +34,7 @@ export function ChoiceGroup<T extends string>({
               <input
                 type="radio"
                 name={name}
+                value={option.value}
                 checked={selected}
                 onChange={() => onChange(option.value)}
                 className="absolute inset-0 cursor-pointer opacity-0"

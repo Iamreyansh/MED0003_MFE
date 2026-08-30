@@ -254,7 +254,7 @@ export type ProcurementCommand =
       screen: 'purchases';
       action: 'create';
       values: {
-        distributor_id: string;
+        distributor_id?: string;
         invoice_number: string;
         invoice_date: string;
       };
@@ -264,7 +264,7 @@ export type ProcurementCommand =
       action: 'importCsv';
       values: {
         file: File;
-        distributor_id: string;
+        distributor_id?: string;
         invoice_number: string;
         invoice_date: string;
       };

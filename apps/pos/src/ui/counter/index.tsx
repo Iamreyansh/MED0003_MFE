@@ -7,7 +7,12 @@ import type {
   PosSearchHit,
   SearchMode,
 } from '@medmate/pos-contract';
-import { isInsufficientStock, parsePositiveQty } from '@medmate/pos-contract';
+import {
+  MAX_MANUAL_DISCOUNT_PCT,
+  isInsufficientStock,
+  parseDiscountInput,
+  parsePositiveQty,
+} from '@medmate/pos-contract';
 import {
   Box,
   Button,
@@ -21,12 +26,15 @@ import {
   StatusMessage,
 } from '@medmate/ui';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { dropEditQty, mergeDiscount, patchCartLine } from '../../lib/cart-view';
 import { COUNTER_COPY, errorText } from '../../lib/copy';
 import { applyDialogOpen } from '../../lib/dialog';
 import { FormBanner } from '../shared/form-error';
 import { CartPanel } from './cart-panel';
 import { SearchPanel } from './search-panel';
 import { TicketPanel } from './ticket-panel';
+
+const DISCOUNT_CAP_COPY = 'Discount exceeds 30% or ₹500 cap';
 
 export function CounterScreen({
   feature,
@@ -61,9 +69,14 @@ export function CounterScreen({
   onSubmitRef.current = feature.onSubmit;
   const cartIdRef = useRef(feature.cartId);
   cartIdRef.current = feature.cartId;
+  const qtySeqRef = useRef(0);
+  const searchFocusedRef = useRef(false);
 
-  const loadCart = useCallback(async () => {
-    setLoading(true);
+  const loadCart = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = Boolean(opts?.silent);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(undefined);
     const result = cartIdRef.current
       ? await onSubmitRef.current({
@@ -72,7 +85,9 @@ export function CounterScreen({
           values: { cart_id: cartIdRef.current },
         })
       : await onSubmitRef.current({ screen: 'counter', action: 'createCart' });
-    setLoading(false);
+    if (!silent) {
+      setLoading(false);
+    }
     if (!result.ok) {
       setError(errorText(result, COUNTER_COPY.loading));
       return;
@@ -85,7 +100,8 @@ export function CounterScreen({
   }, [loadCart]);
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !searchFocusedRef.current) {
+      searchFocusedRef.current = true;
       document.getElementById('pos-search-input')?.focus();
     }
   }, [loading]);
@@ -98,7 +114,7 @@ export function CounterScreen({
     }
     setSearching(true);
     setError(undefined);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'search',
       values: { query: trimmed, mode },
@@ -115,7 +131,7 @@ export function CounterScreen({
   async function addHit(hit: PosSearchHit) {
     setBusy(true);
     setError(undefined);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'addItem',
       values: { product_id: hit.product_id, quantity: 1 },
@@ -129,28 +145,27 @@ export function CounterScreen({
       );
       return;
     }
-    await loadCart();
+    await loadCart({ silent: true });
   }
 
   async function persistQty(itemId: string, qty: number) {
-    setBusy(true);
+    qtySeqRef.current += 1;
+    const seq = qtySeqRef.current;
     setError(undefined);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'patchItem',
       values: { item_id: itemId, quantity: qty },
     });
-    setBusy(false);
+    if (seq !== qtySeqRef.current) {
+      return;
+    }
     if (!result.ok) {
       setError(errorText(result));
       return;
     }
-    setEditQty((current) => {
-      const next = { ...current };
-      delete next[itemId];
-      return next;
-    });
-    await loadCart();
+    setCart((current) => patchCartLine(current, itemId, qty, result.item));
+    setEditQty((current) => dropEditQty(current, itemId));
   }
 
   function commitQty(itemId: string, original: number | null | undefined) {
@@ -189,7 +204,7 @@ export function CounterScreen({
 
   async function removeItem(itemId: string) {
     setBusy(true);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'deleteItem',
       values: { item_id: itemId },
@@ -199,12 +214,12 @@ export function CounterScreen({
       setError(errorText(result));
       return;
     }
-    await loadCart();
+    await loadCart({ silent: true });
   }
 
   async function confirmClear() {
     setBusy(true);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'clearCart',
     });
@@ -215,12 +230,12 @@ export function CounterScreen({
       return;
     }
     setReceipt(null);
-    await loadCart();
+    await loadCart({ silent: true });
   }
 
   async function attachCustomer() {
     setBusy(true);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'attachCustomer',
       values: {
@@ -233,17 +248,22 @@ export function CounterScreen({
       setError(errorText(result));
       return;
     }
-    await loadCart();
+    await loadCart({ silent: true });
   }
 
   async function applyDiscount() {
-    const value = Number(discountValue);
-    if (!Number.isFinite(value) || value <= 0) {
+    const value = parseDiscountInput(discountValue);
+    if (value === null) {
       setError('Discount value must be greater than zero.');
       return;
     }
+    if (discountType === 'PERCENTAGE' && value > MAX_MANUAL_DISCOUNT_PCT) {
+      setError(DISCOUNT_CAP_COPY);
+      return;
+    }
+    setError(undefined);
     setBusy(true);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'applyDiscount',
       values: { type: discountType, value },
@@ -253,14 +273,19 @@ export function CounterScreen({
       setError(errorText(result));
       return;
     }
-    await loadCart();
+    const discount = result.discount;
+    if (discount) {
+      setCart((current) => mergeDiscount(current, discount));
+      return;
+    }
+    await loadCart({ silent: true });
   }
 
   async function checkout() {
     setPaying(true);
     setError(undefined);
     const paid = amountPaid.trim() === '' ? undefined : Number(amountPaid);
-    const result = await feature.onSubmit({
+    const result = await onSubmitRef.current({
       screen: 'counter',
       action: 'checkout',
       values: {

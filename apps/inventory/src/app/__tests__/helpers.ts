@@ -107,8 +107,10 @@ export const RACKS: InventorySubmitResult = {
     {
       rack_code: 'A1',
       name: 'Counter left',
+      description: 'Counter left',
       zone_name: 'OTC',
       product_count: 3,
+      medicine_count: 3,
     },
   ],
 };

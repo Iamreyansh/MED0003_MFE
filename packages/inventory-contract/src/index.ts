@@ -55,8 +55,10 @@ export type ExpiryAlert = {
 export type RackLocation = {
   rack_code: string;
   name?: string | null;
+  description?: string | null;
   zone_name?: string | null;
   product_count?: number | null;
+  medicine_count?: number | null;
 };
 
 export type UnlocatedProduct = {
@@ -140,7 +142,12 @@ export type InventoryCommand =
   | {
       screen: 'racks';
       action: 'create';
-      values: { rack_code: string; zone_name: string; name?: string };
+      values: {
+        rack_code: string;
+        zone_name: string;
+        name?: string;
+        description?: string;
+      };
     }
   | { screen: 'racks'; action: 'loadUnlocated' }
   | {
