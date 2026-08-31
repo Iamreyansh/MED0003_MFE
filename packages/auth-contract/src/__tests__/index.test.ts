@@ -16,6 +16,8 @@ import {
 describe('auth-contract', () => {
   it('recognises portal types', () => {
     expect(AUTH_PORTAL_TYPES).toContain('pharmacy');
+    expect(AUTH_PORTAL_TYPES).toContain('pharmacy-forgot');
+    expect(AUTH_PORTAL_TYPES).toContain('pharmacy-reset');
     expect(isAuthPortalType('pharmacy')).toBe(true);
     expect(isAuthPortalType('pos')).toBe(true);
     expect(isAuthPortalType('unknown')).toBe(false);

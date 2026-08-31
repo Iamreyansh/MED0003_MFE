@@ -64,6 +64,37 @@ export type OrderActionResult = {
   order_id?: string | null;
   status?: OrderStatus | null;
   rider_id?: string | null;
+  pickup_otp?: string | null;
+};
+
+export type RiderDirectoryRow = {
+  rider_id: string;
+  name?: string | null;
+  phone?: string | null;
+  vehicle_plate?: string | null;
+};
+
+export type OrderHandoff = {
+  order_id?: string | null;
+  order_number?: string | null;
+  status?: OrderStatus | null;
+  rider_id?: string | null;
+  pickup_otp?: string | null;
+};
+
+export type OrderInboxQuery = {
+  page?: number;
+  limit?: number;
+  status?: string;
+};
+
+export type OrderInboxRow = {
+  order_id: string;
+  order_number?: string | null;
+  status?: OrderStatus | null;
+  items_count?: number | null;
+  total?: number | string | null;
+  created_at?: string | null;
 };
 
 export type OrdersCommand =
@@ -79,6 +110,7 @@ export type OrdersCommand =
       values: { quoteId: string; reason?: string };
     }
   | { screen: 'orders-home'; action: 'noop' }
+  | { screen: 'orders-home'; action: 'load'; values?: OrderInboxQuery }
   | {
       screen: 'order-actions';
       action: 'accept';
@@ -98,6 +130,16 @@ export type OrdersCommand =
       screen: 'order-actions';
       action: 'assignRider';
       values: { orderId: string; rider_id: string };
+    }
+  | {
+      screen: 'order-actions';
+      action: 'listRiders';
+      values: { orderId: string };
+    }
+  | {
+      screen: 'order-actions';
+      action: 'loadHandoff';
+      values: { orderId: string };
     };
 
 export type OrdersSubmitSuccess = {
@@ -109,6 +151,9 @@ export type OrdersSubmitSuccess = {
   reject?: OrderActionResult | null;
   status?: OrderActionResult | null;
   assign?: OrderActionResult | null;
+  riders?: RiderDirectoryRow[];
+  handoff?: OrderHandoff | null;
+  orders?: OrderInboxRow[];
   meta?: PageMeta;
 };
 

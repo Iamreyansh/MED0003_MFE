@@ -6,6 +6,7 @@ import { HelpScreen } from '../ui/help';
 import { HelpArticleScreen } from '../ui/help-article';
 import { PageHeader } from '../ui/shared/page-header';
 import { TicketDetailScreen } from '../ui/ticket-detail';
+import { TicketListScreen } from '../ui/ticket-list';
 import { TicketNewScreen } from '../ui/ticket-new';
 
 export function SupportLayout({ data }: SupportMfeProps) {
@@ -21,6 +22,12 @@ export function SupportLayout({ data }: SupportMfeProps) {
         helper={copy.helper}
         kicker={copy.kicker}
       />
+      {feature.screen === 'ticket-list' ? (
+        <TicketListScreen
+          feature={feature}
+          onNavigate={data.capabilities?.navigate}
+        />
+      ) : null}
       {feature.screen === 'ticket-new' ? (
         <TicketNewScreen
           feature={feature}

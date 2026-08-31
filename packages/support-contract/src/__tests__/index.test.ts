@@ -18,6 +18,7 @@ import {
 describe('support-contract', () => {
   it('recognises screens and feature payloads', () => {
     expect(SUPPORT_SCREENS).toContain('ticket-new');
+    expect(SUPPORT_SCREENS).toContain('ticket-list');
     expect(isSupportScreen('help-article')).toBe(true);
     expect(isSupportScreen('nope')).toBe(false);
     expect(isSupportScreen(1)).toBe(false);

@@ -70,7 +70,7 @@ describe('NotificationsScreen', () => {
     expect(
       await screen.findByTestId('settings-notifications-page'),
     ).toBeTruthy();
-    expect(screen.getByLabelText('Push')).toBeTruthy();
+    expect(await screen.findByLabelText('Push')).toBeTruthy();
     expect(screen.getByLabelText('SMS')).toBeTruthy();
     expect(screen.getByLabelText('WhatsApp')).toBeDisabled();
     expect(screen.getByLabelText('Email')).toBeDisabled();

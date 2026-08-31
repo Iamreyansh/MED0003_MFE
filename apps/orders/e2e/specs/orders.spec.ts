@@ -15,12 +15,10 @@ test.describe('Orders MFE standalone', () => {
     await expect(page.getByLabel('Quoted price')).toBeVisible();
   });
 
-  test('shows guidance and order actions without a list GET', async ({
-    page,
-  }) => {
+  test('shows the inbound list and order actions', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'orders-home' }).click();
-    await expect(page.getByTestId('orders-home-guidance')).toBeVisible();
+    await expect(page.getByTestId('orders-home-empty')).toBeVisible();
     await page.getByRole('button', { name: 'order-actions' }).click();
     await expect(page.getByTestId('orders-order-actions-page')).toBeVisible();
     await expect(

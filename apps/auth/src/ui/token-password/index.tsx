@@ -18,7 +18,7 @@ export function TokenPasswordScreen({
   submitLabel,
 }: {
   feature: AuthFeatureData;
-  portalType: 'admin-invite' | 'admin-reset';
+  portalType: 'admin-invite' | 'admin-reset' | 'pharmacy-reset';
   tokenLabel: string;
   passwordLabel: string;
   submitLabel: string;
@@ -48,7 +48,10 @@ export function TokenPasswordScreen({
                 },
               }
             : {
-                portalType: 'admin-reset',
+                portalType:
+                  portalType === 'pharmacy-reset'
+                    ? 'pharmacy-reset'
+                    : 'admin-reset',
                 action: 'complete',
                 values: {
                   resetToken: values.token,

@@ -7,6 +7,8 @@ export const AUTH_PORTAL_TYPES = [
   'admin-invite',
   'admin-reset',
   'pharmacy-register-otp',
+  'pharmacy-forgot',
+  'pharmacy-reset',
   'sessions',
 ] as const;
 
@@ -93,6 +95,16 @@ export type AuthCommand =
       values: { resetToken: string; password: string };
     }
   | {
+      portalType: 'pharmacy-forgot';
+      action: 'request';
+      values: { identifier: string };
+    }
+  | {
+      portalType: 'pharmacy-reset';
+      action: 'complete';
+      values: { resetToken: string; password: string };
+    }
+  | {
       portalType: 'pharmacy-register-otp';
       action: 'sendOtp' | 'resendOtp';
       values: { email: string };
@@ -142,7 +154,13 @@ export type AuthFeatureData = {
   busy?: boolean;
   disabled?: boolean;
   copy?: Partial<AuthCopy>;
-  links?: { posLogin?: string; staffLogin?: string; register?: string };
+  links?: {
+    posLogin?: string;
+    staffLogin?: string;
+    register?: string;
+    forgotPassword?: string;
+    login?: string;
+  };
   sessions?: AuthSessionRow[];
   otpContext?: AuthStepContext;
 };

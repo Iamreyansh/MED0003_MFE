@@ -52,6 +52,7 @@ export const PLANS_COPY = {
 export const BILLING_COPY = {
   empty: 'No SaaS invoices yet.',
   pay: 'Pay',
+  paymentsDisabled: 'Card payments are not enabled in this environment.',
   processing: 'Payment is processing. This invoice is not marked paid yet.',
   forbidden: 'SaaS invoices are owner-only.',
   tableLabel: 'SaaS invoices',

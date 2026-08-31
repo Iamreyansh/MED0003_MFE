@@ -19,8 +19,8 @@ describe('TokenPasswordScreen', () => {
     await user.type(screen.getByLabelText('New password'), 'Secret123!');
     await user.click(screen.getByRole('button', { name: 'Save password' }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalled());
-    rerender(<AuthMfe data={data(feature('admin-reset', onSubmit))} />);
-    await user.type(screen.getByLabelText('Reset token'), 'reset-1');
+    rerender(<AuthMfe data={data(feature('pharmacy-reset', onSubmit))} />);
+    await user.type(screen.getByLabelText('Reset token'), 'reset-2');
     await user.type(screen.getByLabelText('New password'), 'Secret123!');
     await user.click(screen.getByRole('button', { name: 'Reset password' }));
   });

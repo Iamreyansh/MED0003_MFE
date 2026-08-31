@@ -13,7 +13,8 @@ src/
   app/                  # contract validation + providers
   layouts/              # domain layout only
   lib/                  # copy and dialog helpers
-  ui/                   # invoices, invoice-detail, invoice-settings, sales
+  ui/                   # invoices, invoice-detail, invoice-settings, sales,
+                        # khata, khata-detail, offers
   contract.ts
 e2e/                    # Playwright config, specs, mocks
 ```

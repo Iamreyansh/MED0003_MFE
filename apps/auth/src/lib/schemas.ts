@@ -21,6 +21,16 @@ export const pharmacySchema = Yup.object({
   password: Yup.string().required('Enter your password.'),
 });
 
+export const forgotSchema = Yup.object({
+  identifier: Yup.string()
+    .required('Enter your email or +91 mobile number.')
+    .test(
+      'identifier',
+      'Use an email or +91 mobile number.',
+      (value) => !value || isValidIdentifier(normalizeIdentifier(value)),
+    ),
+});
+
 export const posSchema = Yup.object({
   pharmacyId: Yup.string()
     .required('Pharmacy and staff IDs are required.')

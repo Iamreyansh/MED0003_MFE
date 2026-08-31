@@ -1,4 +1,5 @@
 export const SUPPORT_SCREENS = [
+  'ticket-list',
   'ticket-new',
   'ticket-detail',
   'help',
@@ -46,6 +47,11 @@ export type HelpArticle = HelpArticleSummary & {
 
 export type SupportCommand =
   | {
+      screen: 'ticket-list';
+      action: 'load';
+      values?: { page?: number; limit?: number };
+    }
+  | {
       screen: 'ticket-new';
       action: 'create';
       values: { subject: string; description?: string; category?: string };
@@ -86,8 +92,10 @@ export type SupportSubmitSuccess = {
   ok: true;
   ticket?: SupportTicket | null;
   ticketId?: string | null;
+  tickets?: SupportTicket[];
   articles?: HelpArticleSummary[];
   article?: HelpArticle | null;
+  meta?: { page?: number; limit?: number; total?: number; has_next?: boolean };
 };
 
 export type SupportSubmitFailure = {

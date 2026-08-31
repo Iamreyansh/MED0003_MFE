@@ -38,7 +38,11 @@ describe('PharmacyLoginScreen', () => {
         data={{
           ...data(
             feature('pharmacy', onSubmit, {
-              links: { posLogin: '/pos-login', register: '/register' },
+              links: {
+                posLogin: '/pos-login',
+                register: '/register',
+                forgotPassword: '/forgot-password',
+              },
               formError: 'Account locked.',
             }),
           ),
@@ -64,6 +68,8 @@ describe('PharmacyLoginScreen', () => {
       screen.getByRole('button', { name: 'Create pharmacy account' }),
     );
     expect(navigate).toHaveBeenCalledWith('/register');
+    await user.click(screen.getByRole('button', { name: 'Forgot password?' }));
+    expect(navigate).toHaveBeenCalledWith('/forgot-password');
   });
 
   it('covers busy, disabled, host errors, and prefilled submit', async () => {

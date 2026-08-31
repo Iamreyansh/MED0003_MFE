@@ -84,6 +84,26 @@ export const PORTAL_COPY: Record<AuthPortalType, Required<AuthCopy>> = {
     passwordLabel: 'Actions',
     brandLine: 'Account security',
   },
+  'pharmacy-forgot': {
+    eyebrow: DEFAULT_EYEBROW,
+    title: 'Forgot password',
+    helper:
+      'Enter your email or +91 mobile. We send a reset only when messaging is live; owners can also issue a token from Roles.',
+    submitLabel: 'Request reset',
+    identifierLabel: 'Email or mobile',
+    passwordLabel: 'Password',
+    brandLine: 'Staff console · India',
+  },
+  'pharmacy-reset': {
+    eyebrow: DEFAULT_EYEBROW,
+    title: 'Reset password',
+    helper:
+      'Use the reset token from your owner or from email when messaging is live.',
+    submitLabel: 'Reset password',
+    identifierLabel: 'Reset token',
+    passwordLabel: 'New password',
+    brandLine: 'Staff console · India',
+  },
 };
 
 export function resolveCopy(
@@ -102,6 +122,12 @@ export function rootTestId(portalType: AuthPortalType): string {
   }
   if (portalType === 'sessions') {
     return 'sessions-page';
+  }
+  if (portalType === 'pharmacy-forgot') {
+    return 'forgot-password-page';
+  }
+  if (portalType === 'pharmacy-reset') {
+    return 'reset-password-page';
   }
   return 'auth-mfe';
 }

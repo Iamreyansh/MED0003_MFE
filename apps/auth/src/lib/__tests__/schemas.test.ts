@@ -5,6 +5,7 @@ import {
   mfaSchema,
   otpSchema,
   pharmacySchema,
+  forgotSchema,
   phoneSchema,
   posSchema,
   tokenPasswordSchema,
@@ -33,6 +34,12 @@ describe('auth schemas', () => {
         password: '',
       }),
     ).rejects.toThrow(/password/);
+    await expect(
+      forgotSchema.validate({ identifier: 'priya@srirama.in' }),
+    ).resolves.toBeTruthy();
+    await expect(forgotSchema.validate({ identifier: '' })).rejects.toThrow(
+      /email or \+91/,
+    );
   });
 
   it('validates pos, phone, otp, admin, and token forms', async () => {

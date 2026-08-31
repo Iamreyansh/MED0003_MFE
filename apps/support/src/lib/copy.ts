@@ -4,6 +4,12 @@ export const SCREEN_COPY: Record<
   SupportScreen,
   { title: string; helper: string; kicker: string }
 > = {
+  'ticket-list': {
+    title: 'Support tickets',
+    helper:
+      'Open tickets for this pharmacy. Create a new one if you do not see it.',
+    kicker: 'Support',
+  },
   'ticket-new': {
     title: 'New support ticket',
     helper: 'Describe the issue. We open the ticket by id after you submit.',
@@ -11,7 +17,7 @@ export const SCREEN_COPY: Record<
   },
   'ticket-detail': {
     title: 'Support ticket',
-    helper: 'Core fields only. Reply on this id. There is no inbox.',
+    helper: 'Core fields only. Reply on this id.',
     kicker: 'Support',
   },
   help: {
@@ -72,6 +78,17 @@ export const TICKET_COPY = {
   retry: 'Retry',
   loading: 'Loading ticket',
   thread: 'Conversation',
+} as const;
+
+export const TICKET_LIST_COPY = {
+  empty: 'No tickets yet.',
+  tableLabel: 'Support tickets',
+  retry: 'Retry',
+  open: 'Open',
+  previous: 'Previous page',
+  next: 'Next page',
+  page: 'Page',
+  newTicket: 'New ticket',
 } as const;
 
 export const HELP_COPY = {

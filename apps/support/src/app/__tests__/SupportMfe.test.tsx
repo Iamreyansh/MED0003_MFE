@@ -44,8 +44,10 @@ describe('SupportLayout', () => {
 
   it('routes create, detail, and help', async () => {
     const { rerender } = render(
-      <SupportMfe data={data(feature('ticket-new'))} />,
+      <SupportMfe data={data(feature('ticket-list'))} />,
     );
+    expect(screen.getByTestId('support-ticket-list-page')).toBeTruthy();
+    rerender(<SupportMfe data={data(feature('ticket-new'))} />);
     expect(screen.getByTestId('support-ticket-new-page')).toBeTruthy();
     rerender(
       <SupportMfe

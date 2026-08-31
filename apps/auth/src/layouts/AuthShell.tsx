@@ -15,6 +15,7 @@ import { resolveCopy, rootTestId } from '../lib/copy';
 import { bindTimelineVisibility, fadeUp } from '../lib/motion';
 import { AdminLoginScreen } from '../ui/admin-login';
 import { OtpLoginScreen } from '../ui/otp-login';
+import { PharmacyForgotScreen } from '../ui/pharmacy-forgot';
 import { PharmacyLoginScreen } from '../ui/pharmacy-login';
 import { PosLoginScreen } from '../ui/pos-login';
 import { RegisterOtpScreen } from '../ui/register-otp';
@@ -96,6 +97,7 @@ function ScreenFor({
       );
     case 'admin-invite':
     case 'admin-reset':
+    case 'pharmacy-reset':
       return (
         <TokenPasswordScreen
           feature={feature}
@@ -103,6 +105,15 @@ function ScreenFor({
           tokenLabel={copy.identifierLabel}
           passwordLabel={copy.passwordLabel}
           submitLabel={copy.submitLabel}
+        />
+      );
+    case 'pharmacy-forgot':
+      return (
+        <PharmacyForgotScreen
+          feature={feature}
+          submitLabel={copy.submitLabel}
+          identifierLabel={copy.identifierLabel}
+          onNavigate={onNavigate}
         />
       );
     case 'pharmacy-register-otp':

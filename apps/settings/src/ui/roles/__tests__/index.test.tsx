@@ -106,7 +106,7 @@ describe('RolesScreen', () => {
     const onSubmit = rolesSubmit();
     render(<SettingsMfe data={data(feature('roles', onSubmit))} />);
     expect(await screen.findByTestId('settings-roles-page')).toBeTruthy();
-    expect(screen.getByTestId('roles-summary')).toBeTruthy();
+    expect(await screen.findByTestId('roles-summary')).toBeTruthy();
     expect(screen.getByLabelText('System roles')).toHaveTextContent('1');
     expect(screen.getByLabelText('Custom packs')).toHaveTextContent('1');
     expect(screen.getByLabelText('Staff assigned')).toHaveTextContent('1');

@@ -11,7 +11,7 @@ export const SCREEN_COPY: Record<
   },
   'orders-home': {
     title: 'Orders',
-    helper: 'Marketplace orders open from a notification. There is no inbox.',
+    helper: 'Inbound marketplace orders for this pharmacy.',
     kicker: 'Fulfilment',
   },
   'order-actions': {
@@ -88,8 +88,15 @@ export const QUOTES_COPY = {
 } as const;
 
 export const HOME_COPY = {
-  guidance:
-    'Open an order from a notification. This screen is not an inbox and does not list marketplace orders.',
+  empty: 'No inbound orders in this filter.',
+  tableLabel: 'Inbound orders',
+  retry: 'Retry',
+  open: 'Open',
+  status: 'Status',
+  allStatuses: 'All statuses',
+  previous: 'Previous page',
+  next: 'Next page',
+  page: 'Page',
 } as const;
 
 export const ACTIONS_COPY = {
@@ -105,9 +112,13 @@ export const ACTIONS_COPY = {
   statusHint: 'Choices are explicit. An illegal transition returns a 409.',
   cachedStatus: 'Local cache — not live. Refresh is not available without GET.',
   rider: 'Assign rider',
-  riderHint: 'Enter a rider UUID. There is no rider directory.',
+  riderHint: 'Pick an active rider, or paste a UUID if the directory is empty.',
   riderId: 'Rider id',
+  riderPick: 'Rider',
   assign: 'Assign rider',
+  handoff: 'Pickup OTP',
+  handoffHint:
+    'Show this code to the rider at handoff. Never share the customer delivery OTP.',
   success: 'Last Core response',
   refundCopy: 'Refund is eventual after Core accepts the rejection.',
 } as const;

@@ -19,7 +19,7 @@ describe('orders copy', () => {
     expect(SCREEN_COPY['order-actions'].title).toMatch(/action/i);
     expect(rootTestId('rx-quotes')).toBe('orders-rx-quotes-page');
     expect(QUOTES_COPY.empty).toMatch(/quote/i);
-    expect(HOME_COPY.guidance).toMatch(/notification/i);
+    expect(HOME_COPY.empty).toMatch(/order/i);
     expect(ACTIONS_COPY.invalidId).toMatch(/UUID/i);
     expect(errorText({ formError: 'Nope' })).toBe('Nope');
     expect(errorText({ code: 'FORBIDDEN' })).toBe('FORBIDDEN');

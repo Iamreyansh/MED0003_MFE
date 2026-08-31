@@ -8,6 +8,7 @@ describe('auth copy', () => {
     expect(rootTestId('pharmacy')).toBe('login-page');
     expect(rootTestId('pos')).toBe('pos-login-page');
     expect(rootTestId('sessions')).toBe('sessions-page');
-    expect(rootTestId('admin')).toBe('auth-mfe');
+    expect(rootTestId('pharmacy-forgot')).toBe('forgot-password-page');
+    expect(rootTestId('pharmacy-reset')).toBe('reset-password-page');
   });
 });
