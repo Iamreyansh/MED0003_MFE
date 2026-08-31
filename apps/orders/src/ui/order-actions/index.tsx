@@ -1,7 +1,9 @@
 import type {
   OrderActionResult,
+  OrderHandoff,
   OrdersFeatureData,
   OrdersSubmitSuccess,
+  RiderDirectoryRow,
 } from '@medmate/orders-contract';
 import {
   ORDER_PACKING_STATUSES,
@@ -23,12 +25,13 @@ import {
   Stack,
   Text,
 } from '@medmate/ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ACTIONS_COPY, errorText } from '../../lib/copy';
 import { applyDialogOpen } from '../../lib/dialog';
 import { FormBanner } from '../shared/form-error';
 import { InputField } from '../shared/input-field';
 import { SectionBlock } from '../shared/section-block';
+import { SelectField } from '../shared/select-field';
 import { StatusBadge } from '../shared/status-badge';
 import { TextareaField } from '../shared/textarea-field';
 
@@ -50,6 +53,8 @@ export function OrderActionsScreen({
   const [reasonError, setReasonError] = useState<string | undefined>();
   const [riderId, setRiderId] = useState('');
   const [riderError, setRiderError] = useState<string | undefined>();
+  const [riders, setRiders] = useState<RiderDirectoryRow[]>([]);
+  const [handoff, setHandoff] = useState<OrderHandoff | null>(null);
   const [cached, setCached] = useState<OrderActionResult | null>(null);
   const [refundNote, setRefundNote] = useState(false);
   const [success, setSuccess] = useState<string | undefined>();
@@ -91,6 +96,34 @@ export function OrderActionsScreen({
     }
     onOk?.(result);
   }
+
+  useEffect(() => {
+    if (!validId) {
+      return;
+    }
+    void feature
+      .onSubmit({
+        screen: 'order-actions',
+        action: 'listRiders',
+        values: { orderId },
+      })
+      .then((result) => {
+        if (result.ok) {
+          setRiders(result.riders ?? []);
+        }
+      });
+    void feature
+      .onSubmit({
+        screen: 'order-actions',
+        action: 'loadHandoff',
+        values: { orderId },
+      })
+      .then((result) => {
+        if (result.ok) {
+          setHandoff(result.handoff ?? null);
+        }
+      });
+  }, [feature, orderId, validId]);
 
   return (
     <Stack gap="3">
@@ -181,6 +214,17 @@ export function OrderActionsScreen({
           ))}
         </Flex>
       </SectionBlock>
+      {handoff?.pickup_otp ? (
+        <SectionBlock
+          id="section-order-handoff"
+          title={ACTIONS_COPY.handoff}
+          hint={ACTIONS_COPY.handoffHint}
+        >
+          <Text size="lg" data-testid="orders-pickup-otp">
+            {handoff.pickup_otp}
+          </Text>
+        </SectionBlock>
+      ) : null}
       <SectionBlock
         id="section-order-rider"
         title={ACTIONS_COPY.rider}
@@ -206,11 +250,36 @@ export function OrderActionsScreen({
                     rider_id: riderId.trim(),
                   },
                 );
+                if (result.assign?.pickup_otp) {
+                  setHandoff({
+                    order_id: orderId,
+                    pickup_otp: result.assign.pickup_otp,
+                    rider_id: riderId.trim(),
+                  });
+                }
                 setSuccess(ACTIONS_COPY.success);
               },
             );
           }}
         >
+          {riders.length > 0 ? (
+            <SelectField
+              label={ACTIONS_COPY.riderPick}
+              name="rider_pick"
+              value={riderId}
+              onChange={(event) => {
+                setRiderId(event.target.value);
+                setRiderError(undefined);
+              }}
+            >
+              <option value="">Select a rider</option>
+              {riders.map((rider) => (
+                <option key={rider.rider_id} value={rider.rider_id}>
+                  {rider.name ?? rider.rider_id}
+                </option>
+              ))}
+            </SelectField>
+          ) : null}
           <InputField
             label={ACTIONS_COPY.riderId}
             name="rider_id"

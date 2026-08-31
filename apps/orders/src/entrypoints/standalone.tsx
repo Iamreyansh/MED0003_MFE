@@ -46,6 +46,9 @@ function mockSubmit(command: OrdersCommand): OrdersSubmitResult {
       meta: { page: 1, has_next: false },
     };
   }
+  if (command.screen === 'orders-home' && command.action === 'load') {
+    return { ok: true, orders: [], meta: { page: 1, has_next: false } };
+  }
   if (
     command.screen === 'order-actions' &&
     command.action === 'advanceStatus'

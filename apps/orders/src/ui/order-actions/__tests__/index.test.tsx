@@ -44,7 +44,9 @@ describe('OrderActionsScreen', () => {
       /UUID/i,
     );
     await user.click(screen.getByRole('button', { name: 'Accept' }));
-    expect(onSubmit).not.toHaveBeenCalled();
+    expect(
+      onSubmit.mock.calls.some((call) => call[0].action === 'accept'),
+    ).toBe(false);
     cleanup();
     render(
       <OrdersMfe
@@ -142,7 +144,9 @@ describe('OrderActionsScreen', () => {
     render(<OrdersMfe data={data(feature('order-actions', onSubmit))} />);
     await user.type(screen.getByLabelText('Rider id'), 'not-a-uuid');
     await user.click(screen.getByRole('button', { name: 'Assign rider' }));
-    expect(onSubmit).not.toHaveBeenCalled();
+    expect(
+      onSubmit.mock.calls.some((call) => call[0].action === 'assignRider'),
+    ).toBe(false);
     expect(screen.getByRole('alert')).toHaveTextContent(/UUID/i);
   });
 
@@ -175,5 +179,51 @@ describe('OrderActionsScreen', () => {
     expect(screen.getByTestId('orders-actions-error')).toHaveTextContent(
       'VALIDATION_ERROR',
     );
+  });
+
+  it('picks a directory rider and shows pickup OTP from assign', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn(async (command: OrdersCommand) => {
+      if (command.action === 'listRiders') {
+        return {
+          ok: true as const,
+          riders: [
+            { rider_id: RIDER_ID, name: 'Ravi' },
+            { rider_id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901' },
+          ],
+        };
+      }
+      if (command.action === 'loadHandoff') {
+        return {
+          ok: true as const,
+          handoff: {
+            order_id: ORDER_ID,
+            pickup_otp: '4321',
+            rider_id: RIDER_ID,
+          },
+        };
+      }
+      if (command.action === 'assignRider') {
+        return {
+          ok: true as const,
+          assign: {
+            order_id: ORDER_ID,
+            rider_id: RIDER_ID,
+            pickup_otp: '5678',
+          },
+        };
+      }
+      return { ok: true as const };
+    });
+    render(<OrdersMfe data={data(feature('order-actions', onSubmit))} />);
+    expect(await screen.findByText('4321')).toBeTruthy();
+    await user.selectOptions(screen.getByLabelText('Rider'), RIDER_ID);
+    await user.click(screen.getByRole('button', { name: 'Assign rider' }));
+    expect(await screen.findByText('5678')).toBeTruthy();
+    expect(onSubmit).toHaveBeenCalledWith({
+      screen: 'order-actions',
+      action: 'assignRider',
+      values: { orderId: ORDER_ID, rider_id: RIDER_ID },
+    });
   });
 });

@@ -12,11 +12,13 @@ export function InvoiceSlip({
   invoice,
   canWrite,
   paying,
+  paymentsDisabled,
   onPay,
 }: {
   invoice: SaasInvoice;
   canWrite: boolean;
   paying: boolean;
+  paymentsDisabled?: boolean;
   onPay: (invoiceId: string) => void;
 }) {
   const paid = invoiceIsPaid(invoice);
@@ -42,7 +44,7 @@ export function InvoiceSlip({
           <Text className="font-mm-heading text-mm-display font-semibold leading-none">
             {invoiceAmountLabel(invoice)}
           </Text>
-          {canWrite && !paid ? (
+          {canWrite && !paid && !paymentsDisabled ? (
             <Button
               type="button"
               disabled={paying}
@@ -52,6 +54,11 @@ export function InvoiceSlip({
             >
               {BILLING_COPY.pay}
             </Button>
+          ) : null}
+          {canWrite && !paid && paymentsDisabled ? (
+            <Text size="sm" tone="muted">
+              {BILLING_COPY.paymentsDisabled}
+            </Text>
           ) : null}
         </Flex>
       </Flex>

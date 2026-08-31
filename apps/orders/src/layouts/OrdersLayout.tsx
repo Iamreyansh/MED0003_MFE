@@ -23,7 +23,14 @@ export function OrdersLayout({ data }: OrdersMfeProps) {
       {feature.screen === 'rx-quotes' ? (
         <RxQuotesScreen feature={feature} />
       ) : null}
-      {feature.screen === 'orders-home' ? <OrdersHomeScreen /> : null}
+      {feature.screen === 'orders-home' ? (
+        <OrdersHomeScreen
+          feature={feature}
+          onOpenOrder={(orderId) =>
+            data.capabilities?.navigate?.(`/orders/${orderId}`)
+          }
+        />
+      ) : null}
       {feature.screen === 'order-actions' ? (
         <OrderActionsScreen feature={feature} />
       ) : null}

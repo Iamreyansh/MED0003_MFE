@@ -103,6 +103,19 @@ describe('BillingScreen', () => {
     });
   });
 
+  it('hides Pay when SaaS payments are disabled', async () => {
+    render(
+      <SubscriptionMfe
+        data={data(feature('billing', billingSubmit(), { disabled: true }))}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('invoice-inv-1')).toBeTruthy();
+    });
+    expect(screen.queryByRole('button', { name: 'Pay' })).toBeNull();
+    expect(screen.getByText(/not enabled in this environment/i)).toBeTruthy();
+  });
+
   it('shows empty, forbidden, and fail-closed pay errors', async () => {
     const empty = billingSubmit({
       load: async () => ({ ok: true }),

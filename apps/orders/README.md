@@ -8,5 +8,5 @@
 ## Screens
 
 - `rx-quotes` — quote queue, quote form, decline
-- `orders-home` — guidance only (no inbox GET)
+- `orders-home` — inbound order inbox (`GET /api/v1/pharmacy/orders`)
 - `order-actions` — accept, reject, status, assign rider by id

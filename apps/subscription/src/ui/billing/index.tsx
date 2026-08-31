@@ -183,6 +183,7 @@ export function BillingScreen({
                 <InvoiceSlip
                   invoice={invoice}
                   canWrite={canWrite}
+                  paymentsDisabled={Boolean(feature.disabled)}
                   paying={busyId === invoice.id}
                   onPay={(id) => {
                     void pay(id);

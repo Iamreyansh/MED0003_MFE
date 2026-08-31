@@ -11,6 +11,7 @@ import {
 
 describe('support copy', () => {
   it('labels screens and helpers', () => {
+    expect(SCREEN_COPY['ticket-list'].title).toMatch(/ticket/i);
     expect(SCREEN_COPY['ticket-new'].title).toMatch(/ticket/i);
     expect(SCREEN_COPY['ticket-detail'].title).toMatch(/ticket/i);
     expect(SCREEN_COPY.help.title).toMatch(/help/i);
